@@ -1,0 +1,70 @@
+
+```{r, echo = FALSE}}
+knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
+```
+
+```{r}
+ikea <- read_csv("https://uwmadison.box.com/shared/static/iat31h1wjg7abhd2889cput7k264bdzd.csv") |>
+filter(category %in% c("Tables", "Bookcases", "Beds", "Cabinets", "Sofas", "Wardrobes"))
+ggplot(ikea) +
+geom_histogram(aes(log(price)))
+```
+
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+  facet_grid(category ~ .)
+```
+a. facet_grid(category ~ .): This plot arranges the histograms into a vertical grid, with each category getting its own row. This makes it easy to compare the distributions of log-transformed prices across categories.
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+  facet_wrap(~ category)
+
+```
+b. facet_wrap(~ category): This plot arranges the histograms into a wrapped grid, where each category gets its own plot. The wrapping is done automatically to fit the plots into the available space, making it more flexible in terms of layout.
+
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+  facet_wrap(~ category, scales = "free_y")
+
+```
+c. facet_wrap(~ category, scales = "free_y"): Similar to the previous plot, but here each category's y-axis is scaled independently. This means the height of the bars is relative to the maximum in each category, making it easier to see the distribution within each category.
+
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+facet_wrap(~ category, axes = "separate")
+```
+d. facet_wrap(~ category, axes = "separate"): In this plot, each category has its own set of axes, meaning both x and y scales are independent. This allows for a separate look at each category without interference from others. Note: The parameter axes = "separate" doesn’t exist in ggplot2, so scales = "free" and switch = "both" are used to achieve a similar effect.
+
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+  facet_wrap(~ category, scales = "free", switch = "both")
+
+```
+d. In this plot, each category has its own set of axes, meaning both x and y scales are independent. This allows for a separate look at each category without interference from others. Note: The parameter axes = "separate" doesn’t exist in ggplot2, so scales = "free" and switch = "both" are used to achieve a similar effect.
+
+
+```{r}
+ggplot(ikea) +
+  geom_histogram(aes(log(price))) +
+  facet_wrap(~ reorder(category, price))
+
+```
+
+e. This plot reorders the categories based on the median price (or another summary statistic). The resulting plots show the histograms in order of increasing or decreasing price, giving a sense of how categories compare in terms of price distribution.
+
+
+
+
+
+
+

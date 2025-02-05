@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+The data below measures properties of various Antarctic penguins.
+
+```{r, echo = TRUE}
+library(tidyverse)
+theme_set(theme_bw())
+penguins <- read_csv("https://uwmadison.box.com/shared/static/ijh7iipc9ect1jf0z8qa2n3j7dgem1gh.csv")
+```
+Create a single plot that makes it easy to answer both of these questions, (i)
+How is bill length related to bill depth within and across species? (ii) On
+which islands are which species found?
+
+```{r}
+library(ggplot2)
+
+# Example data
+data <- data.frame(
+  x = 1:10,
+  y = rnorm(10),
+  group = factor(rep(c("A", "B"), each = 5))
+)
+# Scatterplot with custom color palette
+ggplot(data, aes(x = x, y = y, color = group)) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("A" = "red", "B" = "blue"))
+
+```
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  scale_color_manual(values = c("Adelie" = "red", "Chinstrap" = "blue", "Gentoo" = "green"))
+```
+
+
+```{r}
+ggplot(penguins, aes(x = species, y = flipper_length_mm)) +
+  geom_boxplot()
+```
+
+
+```{r}
+ggplot(data, aes(x = year, y = <correct_column>, fill = cluster)) +
+  geom_area()
+
+```
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point()
+```
+
+
