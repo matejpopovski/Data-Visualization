@@ -1,0 +1,44 @@
+---
+title: "inclassdisc2-1"
+output: html_document
+date: "2025-01-30"
+author: "Matej Popovski"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Setting up the R environment and loading necessary libraries
+knitr::opts_chunk$set(cache = FALSE, message = FALSE, warning = FALSE, echo = TRUE) # Configures knitr options for output
+library(tidyverse) # Imports tidyverse for data manipulation and visualization
+theme_set(theme_bw()) # Sets a consistent theme for plots
+
+# Displaying an example tidy dataset
+table1 # This dataset follows tidy data principles, making visualization straightforward
+
+# Creating a visualization of the tidy dataset
+ggplot(table1, aes(x = year, y = cases, col = country)) + # Maps year to x-axis, cases to y-axis, and country to color
+  geom_point() + # Adds points to the plot
+  geom_line()   # Connects the points with lines
+
+# Example of non-tidy data - Variables stored as column names
+table4a # Cases stored incorrectly as separate columns
+table4b # Population stored incorrectly as separate columns
+
+# Example of non-tidy data - The same observation appearing in multiple rows
+table2 # Each country-year combination appears multiple times, making analysis difficult
+
+# Example of non-tidy data - A single column storing multiple variables
+table3 # The 'rate' column combines population and case count, losing individual values
+
+# Attempting to visualize non-tidy data
+ggplot(table3, aes(x = year, y = rate)) + # Tries to plot a combined variable
+  geom_point() +
+  geom_line(aes(group = country)) # Groups data by country for better visualization
+
+# ??? How does ggplot handle mixed data types in the 'rate' column?
+# ??? What are the best approaches to separate 'rate' into distinct variables?
+```
+

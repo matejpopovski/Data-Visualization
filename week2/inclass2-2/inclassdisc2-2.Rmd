@@ -1,0 +1,45 @@
+---
+title: "inclassdisc1-1"
+output: html_document
+date: "2025-01-29"
+author: "Matej Popovski"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+
+# Read the dataset
+ikea <- read_csv("https://uwmadison.box.com/shared/static/iat31h1wjg7abhd2889cput7k264bdzd.csv")
+
+# Convert logical column to factor explicitly
+ikea$sellable_online <- as.factor(ikea$sellable_online)
+
+# Create the scatter plot with jitter
+ggplot(ikea, aes(x = category, y = price)) +
+  geom_jitter(aes(color = sellable_online), 
+              width = 0.2, alpha = 0.6, size = 2) +
+  scale_y_log10() +
+  labs(title = "Ikea Furniture Prices by Category",
+       x = "Furniture Category",
+       y = "Price (Log Scale)",
+       color = "Available Online") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+> To plan my code, I first examined the dataset structure using colnames(ikea) and head(ikea) to understand the available columns. Then, I outlined the key steps required for visualization: loading the data, converting necessary columns, and using ggplot2 with geom_jitter() for the scatter plot. I did not write formal pseudocode, but I followed a logical progression based on previous experience with R visualization.
+
+> One of the main bugs I encountered was an error related to the sellable_online column, which was not found initially. This was due to mistakenly referencing a non-existent column name (available_online). To resolve this, I verified column names using colnames(ikea), confirmed the correct one, and ensured that sellable_online was properly converted to a factor before mapping it to the plot’s aesthetics.
+
+> If I were to start the task again, I would first inspect the dataset more thoroughly before writing any code to avoid referencing incorrect column names. I would also test small portions of the code incrementally, ensuring that each part works as expected before proceeding to the next step, which would help catch issues earlier in the process.
+
+
+

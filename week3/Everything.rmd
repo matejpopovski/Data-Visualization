@@ -1,0 +1,64 @@
+Loading Libraries: tidyverse for data manipulation and ggplot2 for visualization.
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(ggplot2)
+```
+
+Reading Data: The dataset is read from the provided URL using read_csv
+
+```{r}
+# Read the dataset
+ikea <- read_csv("https://uwmadison.box.com/shared/static/iat31h1wjg7abhd2889cput7k264bdzd.csv", show_col_types = FALSE)
+print(ikea)
+```
+Plot Creation: The ggplot function initializes the plot. The aes function maps category to the x-axis, price to the y-axis, and online_purchase given by sellable_online to the color of the points.
+
+
+geom_jitter: Jitters the points to reduce overlap. The width parameter controls the amount of horizontal jitter.
+
+scale_y_log10: Applies a log scale to the y-axis for prices.
+
+Adds labels and a title to the plot.
+
+Applies a clean and minimal theme to the plot.
+
+```{r}
+# Create a plot with jittered points and log-scaled price
+ggplot(ikea, aes(x = category, y = price, color = sellable_online)) +
+  geom_jitter(width = 0.2, height = 0, size = 2) +
+  scale_y_log10() +
+  labs(title = "IKEA Furniture Prices by Category",
+       x = "Furniture Category",
+       y = "Price (Log Scale)",
+       color = "Sellable Online") +
+  theme_minimal()
+```
+
+
+```{r}
+library(gapminder)
+data(gapminder)
+data
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+---
+title: "inclassdisc1-1"
+output: html_document
+date: "2025-01-29"
+author: "Matej Popovski"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> I chose to use the built in dataset iris because I like flowers. 
+
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Create scatter plot
+ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species)) +
+  geom_point(size = 3, alpha = 0.8) +  # Adjust point size & transparency
+  labs(title = "Petal Length vs. Petal Width by Species",
+       x = "Petal Length (cm)",
+       y = "Petal Width (cm)",
+       color = "Species") +
+  theme_minimal()  # Apply a clean theme
+
+
+```
+
+> Iris setosa is distinctly separate from the other two species, making it easier to classify.
+
+> Iris versicolor and Iris virginica have some overlap but can still be differentiated.
+
