@@ -1,0 +1,591 @@
+---
+title: "Problem Set 1 Solutions"
+subtitle: "STAT 436, Fall 2024"
+output: rmdformats::readthedown
+css: custom.css
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = TRUE, fig.align = "center")
+```
+
+<style>
+#a {
+color:orange;
+background: grey !important; 
+}
+</style>
+
+```{r, echo = FALSE}
+    library(tidyverse)
+    my_theme <- theme_classic() +
+      theme(
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_blank(),
+        plot.background = element_rect(fill = "transparent", colour = NA)
+      )
+    theme_set(my_theme)
+```
+
+# NYC Flights 
+
+## Scoring
+
+* a, Code (0.5 points): Correct and concise (0.5 points), Correct but unnecessarily complex (0.25 points), Incorrect (0 points)
+* b, Design (1 point): Clear and customized visual design (1 point), Technically correct but with some inattention to detail (0.25 points), Incorrect (0 points)
+* b, Discussion (0.5 points): Complete interpretation (0.5 points), Incomplete or unjustified interpretation (0.25 points), Incorrect (0 points)
+
+## Question
+
+The following questions refer to the NYC flights dataset. The first few lines
+are printed below.
+
+```{r}
+library(nycflights13)
+flights |> 
+    select(carrier, air_time, distance)
+```
+
+a. Provide code to create a new column giving the average speed of
+the flight: $\texttt{speed} := \frac{\texttt{distance}}{\texttt{air_time}}$.
+
+```{r}
+flights |>
+    mutate(speed = distance / air_time)
+```
+
+b. Is there a large variation in flight speed across carriers? Design
+and sketch code for a visualization that could be used to answer this
+question (you may assume the output of (a)).
+
+We provide three potential solutions at varying levels of granularity.
+
+```{r}
+flights |>
+    mutate(speed = distance / air_time) |>
+    ggplot() +
+    geom_boxplot(aes(speed, reorder(carrier, speed, median, na.rm = TRUE))) +
+    labs(x = "Average Flight Speed (Miles/Minute)", y = "Carrier")
+
+flights |>
+    mutate(speed = distance / air_time) |>
+    ggplot() +
+    geom_point(
+        aes(speed, reorder(carrier, speed, median, na.rm = TRUE)),
+        alpha = 0.05, size = 0.5, position = position_jitter(h = 0.1)
+    ) +
+    labs(x = "Average Flight Speed (Miles/Minute)", y = "Carrier")
+```
+
+```{r, fig.height = 3, fig.width = 10}
+flights |>
+    mutate(speed = distance / air_time) |>
+    ggplot() +
+    geom_histogram(aes(speed)) +
+    facet_wrap(~ reorder(carrier, speed, mean, na.rm = TRUE), ncol = 8) +
+    labs(x = "Average Flight Speed (Miles/Minute)", y = "Frequency")
+```
+
+# London Olympics
+
+## Scoring
+
+* c, Design (0.5 points): Clear and customized visual design (0.5 points), Technically correct but with some inattention to detail (0.25 points), Inappropriate visual encodings (0 points)
+* c, Discussion (0.5 points): Correct and concise (0.5 points), Incomplete or unjustified interpretation (0.25 points), Incorrect (0 points)
+* a - b, Code (0.5 points): Correct and concise (0.5 points), Correct but unnecessarily complex (0.25 points), Incorrect (0 points)
+
+## Question
+
+The data at this
+[link](https://uwmadison.box.com/s/rzw8h2x6dp5693gdbpgxaf2koqijo12l) describes
+all participants in the London 2012 Olympics.
+
+a. Create a layered display that shows (i) the ages of athletes across sports
+and (ii) the average age within each sport.
+    
+```{r}
+olympics <- read_csv("https://uwmadison.box.com/shared/static/rzw8h2x6dp5693gdbpgxaf2koqijo12l.csv")
+averages <- olympics |>
+    group_by(Sport) |>
+    summarise(Age = mean(Age))
+
+ggplot(olympics, aes(Age, Sport)) +
+    geom_point(position = position_jitter(h = .2), size = 0.5, col = "#63CAF2") +
+    geom_point(data = averages, col = "#184059")
+```
+
+b. Sort the sports from lowest to highest average age.
+
+```{r}
+ggplot(olympics, aes(Age, reorder(Sport, Age))) +
+    geom_point(position = position_jitter(h = .2), size = 0.5, col = "#63CAF2") +
+    geom_point(data = averages, col = "#184059") +
+    labs(x = "Age", y = "Sport")
+```
+
+c. Develop one new question based on these data. What makes you interested
+in it? Provide a visualization that supports the comparisons needed to
+arrive at an answer.
+
+There are many possible solutions to this problem. Some potential questions
+of interest include,
+
+  * Which countries win the most medals overall?
+  * Which countries win the most medals in which sports?
+  * Which athletes won the most medals?
+  * How does athlete age vary across both sport and gender?
+  * How many athletes were born outside of the country that they competed for?
+  
+Here is an example design for the first question. Some of the interesting
+findings include: (i) Some countries have much larger (or lower) proportions of
+Gold medals, in spite of lower overall medal count (e.g., Germany and Canada),
+(ii) there is a long tail of countries with 1 - 2 medals. We could imagine
+faceting by a few of the major sports (using `fct_lump` to group the rare ones),
+but we would want to reorder separately within each facet (this will be covered
+in the module on text data).
+
+```{r, fig.height = 5, fig.width = 7}
+olympics |>
+    group_by(Country) |>
+    summarise(across(Gold:Bronze, sum)) |>
+    pivot_longer(-Country, names_to = "Medal") |>
+    filter(value > 0) |>
+    mutate(Medal = factor(Medal, levels = c("Bronze", "Silver", "Gold"))) |>
+    ggplot() +
+    geom_col(
+    aes(value, reorder(Country, value, sum), fill = Medal),
+    width = 1
+    ) +
+    scale_fill_manual(values = c("#cd7f32", "#c0c0c0", "#ffd700")) +
+    scale_x_continuous(expand = c(0, 0, 0.1, 0)) +
+    labs(x = "Medal Count", y = "Country")
+```
+
+# Pokemon
+
+## Scoring
+
+* c, Design (1 point): Creative and clear visual design (1 point), Technically correct but with some inattention to detail (.5 points), Inappropriate visual encodings (0 points)
+* a - c, Code (2 point): Correct and concise (1 point), Correct but unnecessarily complex (0.5 points), Incorrect (0 points)
+* d, Discussion (1 points): Proposed designs with full elaboration (1 point), Reasonable but not fully developed proposal (0.5 points), Misunderstood or no proposal (0 points).
+
+## Question
+
+This problem gives practice in deriving new variables to improve a faceted plot.
+The data below give attack and defense statistics for Pokemon, along with their
+types. We will build a visualization to answer the question -- how do the
+different types of Pokemon vary in their attack and defense potential?
+  
+a. Derive a new column containing the attack-to-defense ratio, defined as
+$\frac{\text{Attack}}{\text{Defense}}$.
+  
+```{r}
+pokemon <- read_csv("https://uwmadison.box.com/shared/static/hf5cmx3ew3ch0v6t0c2x56838er1lt2c.csv") |>
+    mutate(attack_to_defense = Attack / Defense)
+```
+        
+b. For each `type_1` group of Pokemon, compute the median attack-to-defense
+ratio.
+
+```{r}
+group_ratio <- pokemon |>
+    group_by(type_1) |>
+    summarise(group_ratio = median(attack_to_defense)) |>
+    arrange(-group_ratio)
+```
+
+c. Plot the attack vs. defense scores for each Pokemon, faceted by `type_1`. Use
+the result of (b) to ensure that the panels are sorted from types with highest
+to lowest attack-to-defense ratio.
+
+```{r}
+pokemon |>
+    ggplot(aes(x = Attack, y = Defense, col = Legendary)) +
+    geom_abline(col = "#d3d3d3") +
+    geom_point(size = 0.8) +
+    scale_color_manual(values = c("#89C893", "#B74555")) +
+    guides(color = guide_legend(override.aes = list(size = 6))) +
+    facet_wrap(~ reorder(type_1, Attack / Defense, median), ncol = 6) +
+    theme(
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom"
+    )
+```
+
+d. Propose, but do not implement, a visualization of this dataset that makes use
+of dynamic queries. What questions would the visualization answer? What would be
+the structure of interaction, and how would the display update when the user
+provides a cue?
+
+A variety of answers could be provided for this problem. Some potential query /
+inputs that could be supported include,
+
+* Allow users to select the `type_1` group of pokemon from a dropdown menu, so that the data do not need to be faceted.
+* Create a histogram of attack-to-defense ratio, allowing users to graphically
+query samples with especially low or high ratios
+* Create scatterplots of other features, like speed or HP, and link graphical
+queries on this scatterplot with the original plot above (or with a table).
+
+# Gene Expression Faceting
+
+## Scoring
+
+* a, c - d Code (2 points): Correct and concise, (2 points), Correct but unnecessarily complex (1 point), Incorrect (0 points)
+* b, d, Discussion (1 point): Complete interpretation (1 point), Incomplete or unjustified interpretation (0.5 points), Incorrect (0 points)
+
+## Question
+
+In this problem, we will experiment with several approaches to visualizing a
+dataset of gene expression over time. Each row below contains the expression
+level for one gene in one sample at a single timepoint.
+
+```{r}
+genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
+head(genes, 3)
+```
+
+a. Provide code to create the small multiples plot below. Note that
+the points have been made semi-transparent and that the $y$-axis is a
+transformation of the original `value` column.
+
+```{r, echo = FALSE, out.width = "0.8\\textwidth", fig.height = 5, fig.width = 10}
+ggplot(genes) +
+    geom_point(aes(time, log(1 + value)), alpha = 0.2, size = 0.8) +
+    facet_wrap(~gene, nrow = 2) +
+    labs(x = "Time", y = expression(log(1 + value)))
+```
+
+   The code is in the block below. We can create the small multiples using
+    `facet_wrap`. Here, we accomplished the log-transformation by setting the
+    log within the `aes()` call. Alternatively, we could have created a
+    transformed column in the original data frame and referred to this.
+
+```{r, echo = TRUE}
+ggplot(genes) +
+    geom_point(aes(time, log(1 + value)), alpha = 0.2, size = 0.8) +
+    facet_wrap(~gene, nrow = 2) +
+    labs(x = "Time", y = expression(log(1 + value)))
+```
+    
+b. In your own words, describe one strength and one weakness of using
+small multiples.
+
+  Strengths:
+
+  * Avoids overlap between similar elements.
+  * Since each small multiple can be labeled, it's possible to draw conclusions about individual elements.
+  * Small multiples can be sorted to simplify some comparison (e.g., by trend).
+  * Since the same encodings are used for each element, the effort of reading the overall plot is not too much higher than reading a panel on its own.
+    
+  Weaknesses:
+
+  * Can take up much more space than plots that overlay each element.
+  * Comparing elements at specific $x$ and $y$ values across panels is challenging, because the reader has to remember relative locations within separate panels, rather than comparing elements directly.
+    
+c. Suppose we instead wanted a heatmap of expression values with genes
+along rows and timepoint along columns. Provide code to draw this, starting from
+the `gene_groups` dataset defined below. Ensure that genes are sorted from most
+to least abundant, and also that expression values are shown on a $\log\left(1 + x\right)$ scale.
+
+```{r}
+gene_groups <- genes |>
+    group_by(gene, rounded_time = round(time, 2)) |>
+    summarise(mean_value = mean(value))
+
+head(gene_groups, 3)
+```
+
+```{r, echo = FALSE}
+ggplot(gene_groups) +
+    geom_tile(aes(rounded_time, reorder(gene, mean_value), fill = log(1 + mean_value))) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_discrete(expand = c(0, 0)) +
+    scale_fill_distiller(direction = 1) +
+    labs(
+        x = "Time (Rounded)",
+        y = "Gene (Sorted by Expression)",
+        fill = "log(1 + mean_value)"
+    ) +
+    theme(
+        strip.text = element_text(size = 16),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16)
+    )
+```
+
+The gene-by-time tiles are the basic elements of this figure, and they correspond with the rows of the `gene_groups` data.frame. Therefore, it is sufficient to add `geom_tile` with appropriate encodings for time, gene ID, and expression level. The scale and label layers were not needed for full credit, but we do expect the genes to be reordered and fill to be on a log scale.
+
+```{r, eval = FALSE}
+ggplot(gene_groups) +
+    geom_tile(aes(rounded_time, reorder(gene, mean_value), fill = log(1 + mean_value))) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_discrete(expand = c(0, 0)) +
+    labs(
+        x = "Time (Rounded)",
+        y = "Gene (Sorted by Expression)",
+        fill = "log(1 + mean_value)"
+    ) +
+    theme(
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)
+    )
+```
+  
+d. Imagine that we trained a model that generates a smooth curve over
+time for each gene. It is stored in the `fitted_values` data below. How can you
+modify your solution to (a) to overlay this? Provide example code and explain
+how this relates to the phrase "grammar of graphics."
+
+```{r}
+fitted_values <- read_csv("https://uwmadison.box.com/shared/static/3cqvf386cr9or2mok2ttp6cl88mtanmg.csv")
+head(fitted_values, 3)
+```
+```{r, echo = FALSE}
+ggplot(genes, aes(time, log(1 + value))) +
+    geom_point(alpha = 0.2, size = 0.8) +
+    geom_line(data = fitted_values, aes(y = log(1 + mu)), linewidth = 2, col = "darkred") +
+    facet_wrap(~gene, nrow = 2) +
+    theme(
+        strip.text = element_text(size = 16),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16)
+    )
+```
+
+We need to add a `geom_line` layer with its own `data` argument, since the rows in the original data and the fitted curve have a different meaning. (In particular, we cannot simply join the data).
+
+```{r, eval = FALSE}
+ggplot(genes, aes(time, log(1 + value))) +
+    geom_point(alpha = 0.2, size = 0.8) +
+    geom_line(data = fitted_values, aes(y = log(1 + mu)), linewidth = 2, col = "darkred") +
+    facet_wrap(~gene, nrow = 2)
+```
+
+This is an example of the "grammar of graphics" because we have composed a new visualization by combining several more basic layers. We were able to compose a new type of plot -- "scatterplot with overlaying line" -- from simple elements, rather than needing a high-level wrapper function for this specific combination.
+
+# Visual Redesign
+
+Solutions to this problem will vary. If you would like to discuss your specific
+visualization and redesign, please see the instructor. An example solution from
+a previous year is included below.
+
+## Scoring
+
+* a - b, Discussion (0.75 points): Accurate and complete analysis of visualization’s goals, using concepts introduced in class (0.75 points), Generally accurate, but potentially vague or poorly referenced, analysis (0.38 points), Little evidence of specific analysis (0 points)
+* c, Discussion (0.75 points): Critical and insightful analysis of past visualization’s limitations (0.75 points), Generally correct analysis but failing to observe important limitations (0.38 points), Imprecise or poorly elaborated analysis (0 points)
+* d, Design and Code (0.75 points): Substantive improvements in new design and elegant code (0.75 points), Appropriate design and readable code (0.38 points), Negligible changes in design or unreadable code (0 points)
+* d, Discussion (1.5 points): Benefits of new design are discussed clearly and refer to concepts from class (1.5 points), Benefits of design are discussed imprecisely, (0.75 points), Missing discussion (0 points)
+
+## Question
+
+In this exercise, you will find a visualization you have made in the past and
+redesign it using the skills you have learned in this course.
+
+a. Identify one of your past visualizations for which you still have data. Include a screenshot of this past visualization.
+
+```{r}
+chocolate <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-18/chocolate.csv")
+```
+
+Previously I wanted to check if different cocoa percentage lead to different ratings. So I did:
+
+```{r}
+    library(tidyr)
+    cocoa_percent <- extract_numeric(chocolate$cocoa_percent)
+    boxplot(chocolate$rating ~ cocoa_percent)
+```
+
+b. Comment on the main takeaways from the visualization and the graphical relationships that lead to that conclusion. Is this takeaway consistent with the intended message? Are there important comparisons that you would like to highlight, but which are harder to make in the current design?\
+
+Cocoa_percent is shown in x-axis, chocolate ratings are shown as y-axis. Previously I concluded the ratings are generally higher when cocoa_percent is between 60-80% (medium percent), because on the graph, the 'boxes' are 'higher' for medium cocoa percent while 'lower' when the percentage is over 80 or below 60. I think is good to make a rating vs. percent boxplot to compare them, it roughly gives us a sense of how the rating changes across cocoa percent. But we can't tell the size of each group, boxplot only shows how the data points spread out but does not indicate which boxes have bigger samples.
+
+c. Comment on the legibility of the original visualization. Are there aspects of the visualization that are cluttered or difficult to read?\
+
+The x-axis does not show all the scales, but I think that is fine. However, the boxplot can not clearly show the distribution of ratings.
+
+d. Propose and implement an alternative design. What visual tasks do you prioritize in the new design? Did you have to make any trade-offs? Did you make any changes specifically to improve legibility.
+
+```{r}
+chocolate |>
+    group_by(rating) |>
+    count(cocoa_percent) |>
+    ggplot() +
+    geom_point(aes(extract_numeric(cocoa_percent), rating, size = n, col = rating)) +
+    labs(x = "cocoa percent", y = "rating")
+```
+
+I changed boxplot into scatterplot with the size of the dot indicating the number of samples in that category. Because in this plot, I want to stress the problem that boxplot cannot show sample size and hence we don't know if there is truly higher rating among medium cocoa percent or it is just because of lacking of data points in higher and lower cocoa percent. From the new graph, I figure we cannot conclude higher rating for 60-80% chocolate anymore, there are barely data points < 60 or > 85, a biased conclusion may be developed based on these data.
+
+# California Wildfire Alternatives
+
+## Scoring
+
+* a - d, Discussion (2.5 points): Complete and accurate (2.5 points), Moderately developed and mostly accurate (1.25 points), Insufficiently developed or broadly inaccurate (0 points)
+* d, Code (0.5 points): Correct and readable code (0.5 points), Ether incorrect or unreadable code (0 points)
+
+## Question
+
+Below, we provide three approaches to visualizing wildfire severity in the
+California fires dataset.
+
+```{r}
+fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") |>
+    select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
+head(fires, 3)
+```
+
+For each approach, describe,
+
+  * One type of visual comparison for which the visualization is well-suited.
+  
+  * One type of visual comparison for which the visualization is poorly-suited.
+  
+Make sure to explain your reasoning.
+  
+a. Approach 1
+
+```{r}
+ggplot(fires) +
+    geom_point(aes(day_of_year, reorder(Counties, AcresBurned), size = log(AcresBurned)), alpha = 0.8) +
+    facet_grid(. ~ year) +
+    scale_size_continuous(range = c(0.1, 5)) +
+    labs(
+        x = "Day of Year",
+        y = "County (Sorted by Acres Burned)",
+        fill = "log(AcresBurned)"
+    ) +
+    theme(
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 8)
+    )
+```
+
+This figure is effective for,
+
+* Observing broad changes in the total number of fires from year to year.
+* Identifying counties with especially high or low numbers of fires during a single year.
+* Recognizing which days of the year consistently have more or fewer fires, as well as fires that occur at unusual times of year.
+
+This figure is ineffective for,
+
+* Learning the names of any particular fire of interest (e.g., any of the large ones).
+* Describing trends in the total number of acres burned, either across all or within specific counties.
+* Identifying the counties with the most acreage burned during any given year.
+
+b. Approach 2
+
+```{r}
+ggplot(fires) +
+    geom_boxplot(aes(factor(year), log(AcresBurned), fill = MajorIncident)) +
+    scale_fill_brewer(palette = "Set2") +
+    labs(fill = "Major Incident?", x = "Year") +
+    theme(
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14)
+    )
+```
+
+This figure is effective for,
+
+* Comparing the relative sizes of major and minor incident fires.
+* Describing key summary statistics (min, max, quartiles) of the fire size distribution within each year.
+* Highlighting the some fires that are not major incidents can have many acres burned.
+* Identifying outlying years, with more or less acres burned than the neighboring years.
+
+This figure is ineffective for,
+
+* Determining the number of fire incidents from year to year.
+* Summarizing geographic variation in the number and size of fires.
+
+c. Approach 3
+
+```{r}
+fires |>
+    slice_max(AcresBurned, n = 18) |>
+    ggplot() +
+    geom_col(aes(AcresBurned, reorder(Name, AcresBurned), fill = factor(year))) +
+    scale_x_continuous(expand = c(0, 0, 0.1, 0)) +
+    scale_fill_brewer(palette = "Set3") +
+    labs(y = "Fire", x = "Acres Burned", title = "Fires with the Most Acres Burned", fill = "Year") +
+    theme(
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 14)
+    )
+```
+
+This figure is effective for,
+
+* Giving the names of the largest fires in the data.
+* Highlighting that, even among the largest fires in the dataset, a few stand out as having many more acres burned than the rest.
+* Summarizing whether certain years had an unusually high/low number of especially devastating fires.
+
+This figure is ineffective for,
+
+* Summarizing geographic variation in the number and size of fires.
+* Determining the number of fire incidents from year to year.
+* Describing temporal trends in the sizes or numbers of fires.
+
+d. Provide the code that could be used to create one of the figures above. If
+the original data need to be transformed/reshaped, include code for this as
+well.
+
+    The code for each example is included in each part.
+
+# Homelessness
+
+## Scoring
+
+* a, Discussion (1 point): Well-developed discussion of potential data sources, e.g., describing what each measurement represents and how features may have been collected (1 point), Technically sound but somewhat underdeveloped response (0.5 points), No response or response without justification (0 points)
+* b, Discussion (0.5 points): Correct identification of data types for all displayed features (0.5 points), Incomplete discussion (0.25 points), Incorrect discussion of data types (0 points)
+* c, Discussion (1 point): Correct understanding of vocabulary for graphical encodings, and a complete discussion for all components of the figure (1 point), Correct but incomplete discussion of encodings (0.5 points), No or incorrect discussion (0 points)
+* d, Discussion (0.5 points): Correct identification and justification of multli-view composition (0.5 points), Correct identification with inappropriate justification (0.25 points), Incorrect identification (0 points)
+
+## Question
+
+
+Take a static screenshot from any of the visualizations in
+this
+[article](https://www.theguardian.com/us-news/ng-interactive/2017/dec/20/bussed-out-america-moves-homeless-people-country-study),
+and deconstruct its associated visual encodings. 
+
+```{r, fig.caption = "Screenshot for the discussion in Problem 7.", out.width = 400, echo = FALSE}
+include_graphics("figure/homelessness.png")
+```
+
+a. What do you think was the underlying data behind the current view? What where
+the rows, and what were the columns?
+
+Each row of the original dataset corresponds to one traveler. The measured variables include (i) the
+origin city, (ii) the destination city, (iii) the difference between median incomes in the origin and
+destination cities (notice that the annotations contradict each other – one refers to an average income,
+the other to a median). The counts within bins of income difference were then derived, though it is
+unclear what the size of these bins are.
+
+b. What were the data types of each of the columns?
+
+The origin and destination cities are categories with many levels. The
+difference in median income is a quantitative variable.
+
+c. What encodings were used? How are properties of marks on the page derived
+from the underlying abstract data?
+
+Vertical height is used to encode the change in median income from source to
+destination. Color encodes whether the change is positive or negative. The
+heights of the smoothed histogram on the right encode the number of travelers
+within that income difference bin. The widths of the paths from the left hand
+side of the display to the histogram also encode the number of travellers within
+that bin.
+
+d. Is multiview composition being used? If so, how?
+
+Yes, multiview composition is being used. The sankey/flow diagram on the left
+and the histogram on the right are shown simultaneously, and they use a common
+$y$-axis. Nonetheless, each could stand alone as an independent figure.
+
+Besides these analysis questions, it’s worth noting the work’s excellent use of
+
+* Annotation: The figure can be interpreted without reference to the main article. A few examples (Chico to Seattle and New York to San Juan) also provide useful points of reference.
+* Aesthetic freedom: In theory, the exact same information could be encoded using just the histogram on the right. However, the additional flows bring to mind the imagery of bussing that recurs throughout the piece. While the visual encoding is redundant, it is nonetheless effective within the context of the larger piece.
