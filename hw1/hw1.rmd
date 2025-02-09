@@ -580,8 +580,8 @@ Map (Geospatial Encoding)
 Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated.
 Size (Area Encoding): The size of each circle represents the number of homeless people relocated to that city. Larger circles indicate more arrivals.
 Color (Red/Blue Contrast):
-Blue circles Represent destinations where homeless individuals were moved.
-Red dots inside some blue circles → Possibly major sending cities or hubs.
+Blue circles - Represent destinations where homeless individuals were moved.
+Red dots inside some blue circles - Possibly major sending cities or hubs.
 Bar Chart (Temporal Encoding)
 
 The bottom section contains a bar chart over time (2011–2017).
