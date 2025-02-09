@@ -238,8 +238,16 @@ ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_MADE)) +
 The data focuses on shooting performance, with a focus on the percentage of "threes" made and their share in a team’s performance each year. These are scatter plots with smoothing lines.
 
 
+[Visual Redesign] b) 
 
+Main Takeaways: Both plots show the trend of three-point share and shooting percentage over time. We can infer how the performance has fluctuated yearly. The smoother lines provide a clearer trend despite the variation in individual years.
 
+The Yearly Threes Share plot shows a general upward trend, implying that three-point shooting has become more prevalent over the years.
+The Yearly Threes Made plot shows fluctuations, with some years having a steep increase in shooting percentage, possibly pointing to specific player performance improvements.
+
+Intended Message Consistency: The plots communicate the message of how shooting trends have evolved over time. However, they could be made clearer to show year-on-year comparisons of these two metrics in a more comparative way.
+
+Hard-to-Highlight Comparisons: Comparing the two plots side-by-side is difficult when you want to see how the two metrics correlate. It would be better to merge the data for both aspects into a single visualization to compare the trends more easily.
 
 
 ```{r}
