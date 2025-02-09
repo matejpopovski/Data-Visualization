@@ -222,6 +222,7 @@ A notable weakness is that small multiples can become cluttered and difficult to
 
 
 ```{r}
+# [Gene Expression Faceting] c)
 
 # Group by gene and rounded time, calculate mean expression value
 gene_groups <- genes %>%
@@ -254,9 +255,55 @@ ggplot(gene_groups, aes(x = rounded_time, y = factor(gene, levels = gene_order),
 ```
 # ne e tolku horizontalen grafot kako na slika, gpt neznae da popravi
 
+[Gene Expression Faceting] d)
 
+To modify the small multiples plot from part (a) and overlay the smooth fitted curve, we will:
 
+- Load the fitted_values dataset and merge it with the original genes dataset.
+- Overlay a smooth fitted curve (mu) on top of the scatter points.
+- Ensure correct styling (matching red curve, transparency, facet grid layout).
 
+```{r}
+# Load fitted values (smooth curve predictions)
+fitted_values <- read_csv("https://go.wisc.edu/x678hu")
+
+# Merge original data with fitted values
+merged_data <- genes %>%
+  left_join(fitted_values, by = c("gene", "time"))
+
+# Create small multiples plot with fitted curves
+ggplot() +
+  geom_point(data = genes, aes(x = time, y = log1p(value)), alpha = 0.3, color = "black") +  # Semi-transparent points
+  geom_line(data = fitted_values, aes(x = time, y = log1p(mu)), color = "darkred", size = 1.2) +  # Fitted smooth curves
+  facet_wrap(~gene, nrow = 2, ncol = 4) +  # Ensure correct facet arrangement
+  theme_minimal() +
+  labs(y = "log(1 + value)", x = "Time") +
+  theme(
+    strip.background = element_rect(fill = "grey80"),  # Matching facet header style
+    strip.text = element_text(face = "bold"),  # Making facet text bold
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    panel.grid.major = element_line(color = "grey90"),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Removing minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2)  # Adding a thin black border
+  )
+
+```
+
+How This Relates to the "Grammar of Graphics": 
+
+Layering:
+The geom_point() layer represents raw gene expression data.
+The geom_line() layer overlays the fitted curve in red.
+
+Aesthetic Mapping (aes()):
+The x-axis (time) and y-axis (log1p(value)) map the data points and fitted values.
+
+Faceting:
+facet_wrap(~gene) ensures each gene gets its own panel.
+
+Customization & Clarity:
+Color (black for raw points, darkred for fitted curve) enhances readability.
+Gridlines & Borders provide a polished appearance.
 
 
 [Visual Redesign] a)
