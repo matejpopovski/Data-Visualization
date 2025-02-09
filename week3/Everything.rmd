@@ -1,3 +1,13 @@
+---
+title: "Untitled"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
+```
+
 Loading Libraries: tidyverse for data manipulation and ggplot2 for visualization.
 
 ```{r}

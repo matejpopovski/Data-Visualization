@@ -1,0 +1,277 @@
+---
+title: "hw1"
+output: html_document
+author: "Matej Popovski"
+date: "`r Sys.Date()`"
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
+```
+
+
+```{r}
+#install.packages("nycflights13")
+
+library(nycflights13)
+library(dplyr)
+```
+
+```{r}
+# [NYC Flights] a)
+flights_speed <- flights |> 
+  select(carrier, air_time, distance) |> 
+  mutate(speed = distance / (air_time / 60))  # Convert air_time to hours
+
+head(flights_speed)  # Check the first few rows
+
+```
+
+
+```{r}
+# [NYC Flights] b)
+library(ggplot2)
+
+ggplot(flights_speed, aes(x = carrier, y = speed)) +
+  geom_boxplot() +
+  labs(title = "Variation in Flight Speed Across Carriers",
+       x = "Carrier",
+       y = "Speed (miles per hour)") +
+  theme_minimal()
+
+```
+
+> There is no large variance in the flight speeds accross carriers.
+
+
+```{r}
+# [London Olympics] a)
+
+library(tidyverse)
+
+# Load the dataset
+olympics <- read_csv("https://uwmadison.box.com/shared/static/rzw8h2x6dp5693gdbpgxaf2koqijo12l.csv")
+
+# Compute average age per sport
+age_summary <- olympics |> 
+  group_by(Sport) |> 
+  summarize(avg_age = mean(Age, na.rm = TRUE))
+
+# Plot
+ggplot(olympics, aes(x = Sport, y = Age)) +
+  geom_jitter(alpha = 0.3, color = "blue", width = 0.2) +  # Individual ages
+  geom_point(data = age_summary, aes(x = Sport, y = avg_age), color = "red", size = 3) +  # Average age
+  coord_flip() +  # Flip for better readability
+  labs(title = "Athlete Ages Across Sports in the 2012 London Olympics",
+       x = "Sport",
+       y = "Age") +
+  theme_minimal()
+
+```
+
+```{r}
+# [London Olympics] b)
+
+sorted_sports <- age_summary |> 
+  arrange(avg_age)
+
+print(sorted_sports)
+
+```
+
+```{r}
+# Not required but for better understanding:
+
+ggplot(sorted_sports, aes(x = reorder(Sport, avg_age), y = avg_age)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Average Age of Athletes by Sport",
+       x = "Sport",
+       y = "Average Age") +
+  theme_minimal()
+
+```
+
+> Question: Do male and female athletes have different average ages in certain sports? Why?
+
+```{r}
+# [London Olympics] c)
+
+# Compute average age by Sport and Gender
+age_gender_summary <- olympics |> 
+  group_by(Sport, Sex) |> 
+  summarize(avg_age = mean(Age, na.rm = TRUE))
+
+# Visualization
+ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Comparison of Average Age Between Male and Female Athletes by Sport",
+       x = "Sport",
+       y = "Average Age",
+       fill = "Gender") +
+  theme_minimal()
+
+
+```
+
+> Some sports may require more experience (e.g., equestrian), while others favor younger athletes (e.g., gymnastics).
+
+> I can se bigger difference in the average age in equestrian and cycling - mountain bile, cycling - road, cycling track, and the reason behind that might be the differences in peak performance age. Another reason might be career longevity & injury risks. However, overall there are no major differences in the average ages between males and females in different sports.
+
+
+```{r}
+# [Pokemon] a)
+
+library(tidyverse)
+
+pokemon <- read_csv("https://uwmadison.box.com/shared/static/hf5cmx3ew3ch0v6t0c2x56838er1lt2c.csv")
+
+# Create the attack-to-defense ratio column
+pokemon <- pokemon %>%
+  mutate(attack_defense_ratio = Attack / Defense)
+
+head(pokemon)
+```
+
+```{r}
+# [Pokemon] b)
+
+median_ratios <- pokemon %>%
+  group_by(type_1) %>%
+  summarize(median_ratio = median(attack_defense_ratio, na.rm = TRUE)) %>%
+  arrange(desc(median_ratio))
+
+head(median_ratios)
+```
+
+```{r}
+# [Pokemon] c)
+
+# Convert type_1 to a factor with levels ordered by median ratio
+pokemon <- pokemon %>%
+  mutate(type_1 = factor(type_1, levels = median_ratios$type_1))
+
+# Plot attack vs defense with faceting by type_1
+ggplot(pokemon, aes(x = Defense, y = Attack, color = type_1)) +
+  geom_point(alpha = 0.6) +
+  facet_wrap(~type_1, scales = "free") +
+  theme_minimal() +
+  labs(title = "Attack vs. Defense by Pokemon Type",
+       x = "Defense",
+       y = "Attack") +
+  theme(legend.position = "none")
+
+```
+
+# [Pokemon] d)
+
+A dynamic visualization would enable users to interact with the data to filter, highlight, or compare Pokémon types.
+
+Potential Questions:
+- How do Pokémon types compare in attack-to-defense ratio? Users can select a type from a dropdown to highlight it.
+- What are the strongest defensive and offensive Pokémon? Sliders can filter by attack or defense stats.
+- How do Legendary Pokémon compare to non-Legendary ones? A toggle can highlight only Legendary Pokémon.
+
+Structure of Interaction:
+
+Dropdown Menu: Highlight a specific Pokémon type.
+Sliders: Filter by Attack, Defense, or attack-to-defense ratio.
+Hover Tooltips: Display stats (e.g., name, attack, defense) on hover.
+Checkbox Toggle: Compare Legendary vs. non-Legendary Pokémon.
+How the Display Updates:
+- Selecting a Pokémon type highlights it, with others becoming transparent.
+- Sliders dynamically filter Pokémon based on the selected range.
+- The plot updates to highlight Legendary Pokémon when toggled.
+
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(readr)
+
+# Read data
+genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
+
+# Order genes as specified
+genes <- genes %>%
+  mutate(gene = factor(gene, levels = c("Cck", "Chpa", "Cngb", "Ispp", "Ins1", "Pyy", "Rbp4", "Spp1")))
+
+# Create plot
+ggplot(genes, aes(x = time, y = log1p(value))) +
+  geom_point(alpha = 0.5) +  # Semi-transparent points
+  facet_wrap(~gene, nrow = 2) +  # 2 rows, 4 columns
+  labs(x = "Time", y = "log(1 + Expression)") +
+  theme_minimal()
+
+```
+
+## [Visual Redesign] 
+Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years.
+
+The first plot shows the Yearly Threes Share over time.
+The second plot shows the Yearly Threes Made percentage over time.
+
+```{r}
+
+shoot = read_csv("./Shooting Splits.csv")
+
+mmdata = shoot %>%
+        filter(YEAR != 2020) %>%
+        rename(THREES_SPLIT = "THREES SHARE", MADE_THREES = "THREES FG%")
+mmdata = mmdata %>%
+       group_by(YEAR) %>%
+       mutate(YEARLY_THREES_SHARE = sum(THREES_SPLIT)/n(), YEARLY_THREES_MADE = sum(MADE_THREES)/n())
+
+ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_SHARE)) + 
+  geom_point() +
+  geom_smooth()
+
+ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_MADE)) + 
+  geom_point() +
+  geom_smooth()
+
+
+```
+
+```{r}
+ggplot(mmdata, aes(x = YEAR)) + 
+  geom_line(aes(y = YEARLY_THREES_SHARE, color = "Threes Share"), size = 1) +
+  geom_line(aes(y = YEARLY_THREES_MADE, color = "Threes Made"), size = 1) +
+  scale_color_manual(values = c("Threes Share" = "blue", "Threes Made" = "orange")) +
+  labs(title = "Comparison of Yearly Threes Share and Threes Made",
+       x = "Year",
+       y = "Percentage (%)",
+       color = "Metrics") +
+  theme_minimal() +
+  theme(legend.position = "bottom") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
