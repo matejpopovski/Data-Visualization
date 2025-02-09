@@ -186,25 +186,25 @@ How the Display Updates:
 - The plot updates to highlight Legendary Pokémon when toggled.
 
 
+
+
+
 ```{r}
 
 library(ggplot2)
 library(dplyr)
 library(readr)
 
-# Read data
+# Load data
 genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
 
-# Order genes as specified
-genes <- genes %>%
-  mutate(gene = factor(gene, levels = c("Cck", "Chpa", "Cngb", "Ispp", "Ins1", "Pyy", "Rbp4", "Spp1")))
-
-# Create plot
+# Plot using small multiples
 ggplot(genes, aes(x = time, y = log1p(value))) +
-  geom_point(alpha = 0.5) +  # Semi-transparent points
-  facet_wrap(~gene, nrow = 2) +  # 2 rows, 4 columns
-  labs(x = "Time", y = "log(1 + Expression)") +
-  theme_minimal()
+  geom_point(alpha = 0.3) +  # semi-transparent points
+  facet_wrap(~gene) +        # create small multiples
+  theme_minimal() +
+  labs(y = "log(1 + value)", x = "Time", title = "Gene Expression Over Time")
+
 
 ```
 
@@ -302,6 +302,9 @@ Using line plots instead of scatter plots for smoother trend visualization.
 The addition of color and dual y-axes makes it easier to distinguish between the two metrics.
 The legend is moved to the bottom for clarity, making the plot less cluttered.
 
+
+
+[California Wildfire Alternatives] 
 
 
 
