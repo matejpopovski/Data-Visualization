@@ -536,9 +536,69 @@ Weaknesses of This Approach
 I did it for all 3 plots.
 
 
+[Homelessness]
+
+```{r}
+#install.packages("magick")  # Run this if you haven't installed magick
+library(magick)
+
+# Load and display the image
+img <- image_read("screenshot1.png")
+print(img)
+```
 
 
+(a) Underlying Data
+The dataset behind this visualization likely contains rows representing individual bus relocations of homeless individuals. Each row might correspond to a single relocation event, and the columns could include:
 
+Origin City – The city where the person was originally located.
+Destination City – The city where the person was relocated.
+Number of Relocations per Destination – The count of homeless individuals arriving at each destination.
+Date of Relocation – The year or month when the relocation happened.
+Reason for Relocation – Possible reasons given for moving the individual.
+Total Number of People Moved Each Year – Aggregated counts per year.
+(b) Data Types
+Each column would have different data types:
+
+Categorical (Nominal)
+
+Origin City, Destination City – Names of cities.
+Reason for Relocation – Categories such as "Reuniting with family," "Seeking a job," etc.
+Numerical (Quantitative)
+
+Number of Homeless Arrivals per Destination – Continuous values (e.g., counts).
+Date of Relocation – Could be either ordinal (yearly breakdown) or continuous (exact timestamp).
+(c) Visual Encodings
+This visualization uses multiple encoding techniques:
+
+Map (Geospatial Encoding)
+
+Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated.
+Size (Area Encoding): The size of each circle represents the number of homeless people relocated to that city. Larger circles indicate more arrivals.
+Color (Red/Blue Contrast):
+Blue circles → Represent destinations where homeless individuals were moved.
+Red dots inside some blue circles → Possibly major sending cities or hubs.
+Bar Chart (Temporal Encoding)
+
+The bottom section contains a bar chart over time (2011–2017).
+X-Axis (Time Encoding): Represents years (2011 to 2017).
+Y-Axis (Count Encoding): The height of the bars represents the number of relocations per year.
+Color (Single-Hue Blue): The use of blue bars ensures consistency with the blue circles in the map.
+Legend and Annotations
+
+A scale legend in the bottom left provides a reference for circle sizes.
+The large bold number "21,400" in the center reinforces the total number of relocations.
+(d) Multi-View Composition
+✔ Yes! This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
+
+The Map → Shows where homeless individuals ended up (spatial trends).
+The Bar Chart → Shows when relocations peaked (temporal trends).
+By integrating both spatial and temporal data, this visualization helps readers understand patterns of homeless relocation across the U.S.
+
+Final Thoughts
+This is a well-designed data visualization because: ✔ It effectively combines a geospatial and temporal view.
+✔ It uses size, position, and color to emphasize key patterns.
+✔ It allows readers to explore trends over both space and time.
 
 
 
