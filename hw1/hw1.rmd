@@ -253,7 +253,6 @@ ggplot(gene_groups, aes(x = rounded_time, y = factor(gene, levels = gene_order),
   ) 
 
 ```
-# ne e tolku horizontalen grafot kako na slika, gpt neznae da popravi
 
 [Gene Expression Faceting] d)
 
@@ -304,7 +303,6 @@ facet_wrap(~gene) ensures each gene gets its own panel.
 Customization & Clarity:
 Color (black for raw points, darkred for fitted curve) enhances readability.
 Gridlines & Borders provide a polished appearance.
-
 
 
 [Visual Redesign] a)
