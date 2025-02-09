@@ -207,7 +207,7 @@ ggplot(genes, aes(x = time, y = log1p(value))) +
 
 ```
 
-## [Visual Redesign] 
+# [Visual Redesign] 
 Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years.
 
 The first plot shows the Yearly Threes Share over time.
