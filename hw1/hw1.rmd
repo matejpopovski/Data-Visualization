@@ -250,6 +250,31 @@ Intended Message Consistency: The plots communicate the message of how shooting 
 Hard-to-Highlight Comparisons: Comparing the two plots side-by-side is difficult when you want to see how the two metrics correlate. It would be better to merge the data for both aspects into a single visualization to compare the trends more easily.
 
 
+[Visual Redesign] c)  
+
+Legibility of the Original Visualization:
+
+Clarity of Data Points: While scatter plots can be useful, they may be difficult to read if there are too many overlapping points or if the trends aren’t clear enough. Here, the scatter points could be a bit noisy, making it harder to discern specific trends at a glance.
+
+Lack of Comparison: There are two separate plots that display different metrics (threes share and threes made), making it harder to compare them directly.
+
+Aesthetics: The use of scatter points and smoothing lines is fine, but it doesn’t fully highlight the correlation between the two metrics over the years. The two plots could be made more compact for easier comparison.
+
+
+[Visual Redesign] d)  
+
+Proposed Redesign:
+For the redesign, I would propose merging these two visuals into a single plot with both metrics combined and enhanced for legibility and clarity. Here’s how I would proceed with the redesign:
+
+Combine the Metrics into One Plot: Instead of showing two separate plots, I would create a line plot with two different colored lines (one for Yearly Threes Share and one for Yearly Threes Made) to allow for easier comparison.
+
+Legibility Improvements:
+
+Line Plot: Use lines instead of points for clearer trend visibility.
+Dual Y-Axes: If the scales for the two metrics differ significantly, using a dual y-axis could make the trends easier to compare while maintaining clarity.
+Color Coding: Use different colors to distinguish between the two metrics clearly (e.g., blue for threes share, orange for threes made).
+Annotations: Annotate key points where significant changes happen in the trends (e.g., sudden spikes in shooting performance) to give viewers key insights.
+
 ```{r}
 ggplot(mmdata, aes(x = YEAR)) + 
   geom_line(aes(y = YEARLY_THREES_SHARE, color = "Threes Share"), size = 1) +
