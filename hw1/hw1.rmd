@@ -485,12 +485,12 @@ ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident
 ```
 
 Strengths of This Approach
-✔ Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
-✔ Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
+- Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
+- Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
 
 Weaknesses of This Approach
-❌ Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
-❌ Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
+- Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
+- Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
 
 
 
