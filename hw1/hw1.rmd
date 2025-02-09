@@ -455,8 +455,42 @@ Weaknesses of This Approach:
 
 [California Wildfire Alternatives] b)
 
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(readr)
+
+# Load data
+fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") %>%
+  select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
+
+# Create box plot with Major Incident color distinction
+ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident)) +
+  geom_boxplot(outlier.shape = 21, outlier.color = "black", alpha = 0.7) +  # Ensure correct transparency and outliers
+  scale_fill_manual(values = c("TRUE" = "#E66101", "FALSE" = "#5EBC89")) +  # Color matching the original image
+  theme_minimal(base_size = 14) +  # Adjust text size for readability
+  labs(y = "log(AcresBurned)", x = "Year", fill = "Major Incident?") +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2),  # Add black border
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right"  # Ensure legend is placed correctly
+  )
 
 
+```
+
+Strengths of This Approach
+✔ Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
+✔ Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
+
+Weaknesses of This Approach
+❌ Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
+❌ Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
 
 
 
