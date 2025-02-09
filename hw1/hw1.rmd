@@ -580,7 +580,7 @@ Map (Geospatial Encoding)
 Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated.
 Size (Area Encoding): The size of each circle represents the number of homeless people relocated to that city. Larger circles indicate more arrivals.
 Color (Red/Blue Contrast):
-Blue circles → Represent destinations where homeless individuals were moved.
+Blue circles Represent destinations where homeless individuals were moved.
 Red dots inside some blue circles → Possibly major sending cities or hubs.
 Bar Chart (Temporal Encoding)
 
@@ -597,8 +597,8 @@ The large bold number "21,400" in the center reinforces the total number of relo
 Multi-View Composition:
 Yes. This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
 
-The Map → Shows where homeless individuals ended up (spatial trends).
-The Bar Chart → Shows when relocations peaked (temporal trends).
+The Map Shows where homeless individuals ended up (spatial trends).
+The Bar Chart Shows when relocations peaked (temporal trends).
 By integrating both spatial and temporal data, this visualization helps readers understand patterns of homeless relocation across the U.S.
 
 Final Thoughts
