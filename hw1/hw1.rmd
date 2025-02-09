@@ -306,6 +306,7 @@ Color (black for raw points, darkred for fitted curve) enhances readability.
 Gridlines & Borders provide a polished appearance.
 
 
+
 [Visual Redesign] a)
 
 Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years.
