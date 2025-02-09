@@ -189,7 +189,7 @@ How the Display Updates:
 [Gene Expression Faceting]
 
 ```{r}
-[Gene Expression Faceting] a)
+# [Gene Expression Faceting] a)
 
 library(ggplot2)
 library(dplyr)
@@ -212,7 +212,47 @@ ggplot(genes, aes(x = time, y = log1p(value))) +
 
 ```
 
+[Gene Expression Faceting] b)
 
+Strength of Small Multiples:
+One major strength of using small multiples is that they allow for easy comparison across multiple categories (in this case, genes). Since each gene has its own separate panel, it becomes much simpler to observe patterns, trends, and differences without overlapping data points from other genes. This clarity makes it easier to identify trends and anomalies in gene expression over time.
+
+Weakness of Small Multiples:
+A notable weakness is that small multiples can become cluttered and difficult to interpret when dealing with a large number of categories. If too many genes were included, the individual panels would shrink, making it harder to discern patterns within each plot. Additionally, if the y-axes are not consistently scaled, comparing expression levels between genes might become misleading.
+
+
+```{r}
+
+# Group by gene and rounded time, calculate mean expression value
+gene_groups <- genes %>%
+  group_by(gene, rounded_time = round(time, 2)) %>%
+  summarise(mean_value = mean(value), .groups = "drop")
+
+# Order genes by total expression (LEAST abundant first)
+gene_order <- gene_groups %>%
+  group_by(gene) %>%
+  summarise(total_expression = sum(mean_value)) %>%
+  arrange(total_expression) %>%  # Reverse the order
+  pull(gene)
+
+# Generate heatmap with wider aspect ratio
+ggplot(gene_groups, aes(x = rounded_time, y = factor(gene, levels = gene_order), fill = log1p(mean_value))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "#1F77B4") +  # Ensure the correct blue gradient
+  theme_minimal(base_size = 14) +  
+  labs(y = "Gene (Sorted by Expression)", x = "Time (Rounded)", fill = "log(1 + mean_value)") +
+  theme(
+    axis.text.x = element_text(size = 12, face = "bold"),  
+    axis.text.y = element_text(size = 12, face = "bold"),
+    axis.title.x = element_text(size = 14, face = "bold"),
+    axis.title.y = element_text(size = 14, face = "bold"),
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank(),
+    plot.margin = margin(10, 20, 10, 10)  # Adjust spacing if needed
+  ) 
+
+```
+# ne e tolku horizontalen grafot kako na slika, gpt neznae da popravi
 
 
 
