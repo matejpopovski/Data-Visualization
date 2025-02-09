@@ -214,6 +214,7 @@ The first plot shows the Yearly Threes Share over time.
 The second plot shows the Yearly Threes Made percentage over time.
 
 ```{r}
+# original code
 
 shoot = read_csv("./Shooting Splits.csv")
 
