@@ -457,13 +457,6 @@ Weaknesses of This Approach:
 
 ```{r}
 
-library(ggplot2)
-library(dplyr)
-library(readr)
-
-# Load data
-fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") %>%
-  select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
 
 # Create box plot with Major Incident color distinction
 ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident)) +
@@ -485,12 +478,74 @@ ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident
 ```
 
 Strengths of This Approach
-- Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
-- Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
+- Good for comparing wildfire severity across years – The boxplots summarize distributions of wildfire sizes each year, making it easy to see which years had more severe fires.
+- Highlights the impact of "Major Incidents" – The color coding allows for a quick visual differentiation between large-scale incidents and smaller fires.
 
 Weaknesses of This Approach
-- Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
-- Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
+- Does not show wildfire seasonality – Unlike Approach 1, this does not show when fires happened during the year.
+- Hard to see individual fires – Boxplots summarize data, so specific details about individual fires (such as location or exact timing) are lost.
+
+
+[California Wildfire Alternatives] c)
+
+```{r}
+top_fires <- fires %>%
+  arrange(desc(AcresBurned)) %>%
+  slice_head(n = 15)
+
+# Define the exact colors from the reference image
+year_colors <- c(
+  "2013" = "#8DD3C7",
+  "2014" = "#FFFFB3",
+  "2015" = "#BEBADA",
+  "2016" = "#FB8072",
+  "2017" = "#80B1D3",
+  "2018" = "#FDB462",
+  "2019" = "#B3DE69"
+)
+
+# Bar chart of largest fires with correct colors and alignment
+ggplot(top_fires, aes(x = AcresBurned, y = reorder(Name, AcresBurned), fill = factor(year))) +
+  geom_col() +
+  scale_fill_manual(values = year_colors) +  # Apply correct colors
+  scale_x_continuous(expand = c(0, 0)) +  # **Fix bar alignment to start from zero**
+  theme_minimal(base_size = 14) +  
+  labs(y = "Fire", x = "Acres Burned", fill = "Year", title = "Fires with the Most Acres Burned") +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2),  # Add black border
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right"  # Ensure legend is placed correctly
+  )
+
+```
+
+Strengths of This Approach
+- Best for identifying the largest individual wildfires – This visualization clearly shows which fires were the most severe and allows comparison across years.
+- Year-based color coding enhances readability – Using different colors for each year helps differentiate fire events across time.
+
+Weaknesses of This Approach
+- Not useful for comparing overall wildfire trends – This only shows the largest fires, so it doesn't provide insight into all fires or how fire severity changes over time.
+- Does not show fire locations or seasonality – Unlike the other approaches, this focuses only on total burned area, ignoring when or where the fires occurred.
+
+[California Wildfire Alternatives] d)
+
+I did it for all 3 plots.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
