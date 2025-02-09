@@ -208,14 +208,15 @@ ggplot(genes, aes(x = time, y = log1p(value))) +
 
 ```
 
-# [Visual Redesign] 
+[Visual Redesign] a)
+
 Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years.
 
 The first plot shows the Yearly Threes Share over time.
 The second plot shows the Yearly Threes Made percentage over time.
 
 ```{r}
-# [Visual Redesign] a)
+
 # original code
 
 shoot = read_csv("./Shooting Splits.csv")
