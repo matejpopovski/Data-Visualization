@@ -186,27 +186,38 @@ How the Display Updates:
 - The plot updates to highlight Legendary Pokémon when toggled.
 
 
-
-
+[Gene Expression Faceting]
 
 ```{r}
+[Gene Expression Faceting] a)
 
 library(ggplot2)
 library(dplyr)
 library(readr)
 
-# Load data
 genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
 
-# Plot using small multiples
 ggplot(genes, aes(x = time, y = log1p(value))) +
-  geom_point(alpha = 0.3) +  # semi-transparent points
-  facet_wrap(~gene) +        # create small multiples
+  geom_point(alpha = 0.3, color = "black") +  # Semi-transparent black points
+  facet_wrap(~gene, nrow = 2, ncol = 4) +  # Ensuring correct facet arrangement
   theme_minimal() +
-  labs(y = "log(1 + value)", x = "Time", title = "Gene Expression Over Time")
-
+  labs(y = "log(1 + value)", x = "Time") +
+  theme(
+    strip.background = element_rect(fill = "grey80"),  # Matching facet header style
+    strip.text = element_text(face = "bold"),  # Making facet text bold
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    panel.grid.major = element_line(color = "grey90"),  # Light grey gridlines
+    panel.grid.minor = element_blank()  # Removing minor gridlines
+  )
 
 ```
+
+
+
+
+
+
+
 
 [Visual Redesign] a)
 
