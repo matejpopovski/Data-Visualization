@@ -547,8 +547,8 @@ img <- image_read("screenshot1.png")
 print(img)
 ```
 
-
-(a) Underlying Data
+[Homelessness] a)
+Underlying Data:
 The dataset behind this visualization likely contains rows representing individual bus relocations of homeless individuals. Each row might correspond to a single relocation event, and the columns could include:
 
 Origin City – The city where the person was originally located.
@@ -557,7 +557,9 @@ Number of Relocations per Destination – The count of homeless individuals arri
 Date of Relocation – The year or month when the relocation happened.
 Reason for Relocation – Possible reasons given for moving the individual.
 Total Number of People Moved Each Year – Aggregated counts per year.
-(b) Data Types
+
+[Homelessness] b)
+Data Types:
 Each column would have different data types:
 
 Categorical (Nominal)
@@ -568,7 +570,9 @@ Numerical (Quantitative)
 
 Number of Homeless Arrivals per Destination – Continuous values (e.g., counts).
 Date of Relocation – Could be either ordinal (yearly breakdown) or continuous (exact timestamp).
-(c) Visual Encodings
+
+[Homelessness] c)
+Visual Encodings:
 This visualization uses multiple encoding techniques:
 
 Map (Geospatial Encoding)
@@ -588,8 +592,10 @@ Legend and Annotations
 
 A scale legend in the bottom left provides a reference for circle sizes.
 The large bold number "21,400" in the center reinforces the total number of relocations.
-(d) Multi-View Composition
-✔ Yes! This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
+
+[Homelessness] d)
+Multi-View Composition:
+Yes. This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
 
 The Map → Shows where homeless individuals ended up (spatial trends).
 The Bar Chart → Shows when relocations peaked (temporal trends).
@@ -597,32 +603,6 @@ By integrating both spatial and temporal data, this visualization helps readers 
 
 Final Thoughts
 This is a well-designed data visualization because: ✔ It effectively combines a geospatial and temporal view.
-✔ It uses size, position, and color to emphasize key patterns.
-✔ It allows readers to explore trends over both space and time.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+It uses size, position, and color to emphasize key patterns.
+It allows readers to explore trends over both space and time.
 
