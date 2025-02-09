@@ -401,7 +401,7 @@ The legend is moved to the bottom for clarity, making the plot less cluttered.
 
 
 
-[California Wildfire Alternatives] 
+[California Wildfire Alternatives] a)
 
 
 ```{r}
@@ -452,6 +452,8 @@ Weaknesses of This Approach:
 - Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
 - Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
 
+
+[California Wildfire Alternatives] b)
 
 
 
