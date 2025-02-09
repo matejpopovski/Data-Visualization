@@ -404,8 +404,53 @@ The legend is moved to the bottom for clarity, making the plot less cluttered.
 [California Wildfire Alternatives] 
 
 
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readr)
 
+# Load data
+fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") %>%
+  select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
 
+# Order counties by total acres burned
+county_order <- fires %>%
+  group_by(Counties) %>%
+  summarise(total_burned = sum(AcresBurned, na.rm = TRUE)) %>%
+  arrange(total_burned) %>%
+  pull(Counties)
+
+# Create scatter plot with grey facet boxes
+ggplot(fires, aes(x = day_of_year, y = factor(Counties, levels = county_order), size = log1p(AcresBurned))) +
+  geom_point(color = "black", alpha = 0.7) +  # Ensure correct opacity and color
+  facet_wrap(~year, nrow = 1, scales = "free_x") +  # Facet by year with a single row
+  theme_minimal(base_size = 14) +  # Adjust text size for readability
+  labs(y = "County (Sorted by Acres Burned)", x = "Day of Year", size = "log(AcresBurned)") +
+  theme(
+    strip.background = element_rect(fill = "grey80", color = "black"),  # Grey background with black border
+    strip.text = element_text(size = 16, face = "bold", color = "black"),  # Bold black text inside the grey box
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 12, angle = 45, hjust = 1),  # Rotate x-axis labels to prevent overlap
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right",  # Position legend correctly
+    panel.grid.major = element_line(color = "grey85"),  # Light grey gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2)  # Add a black border around the plot
+  ) +
+  scale_size_continuous(range = c(1, 6))  # Ensure correct bubble scaling
+
+```
+
+Strengths of This Approach:
+
+- Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
+- Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
+
+Weaknesses of This Approach:
+
+- Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
+- Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
 
 
 
