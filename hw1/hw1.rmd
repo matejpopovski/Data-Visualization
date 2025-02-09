@@ -179,6 +179,7 @@ Dropdown Menu: Highlight a specific Pokémon type.
 Sliders: Filter by Attack, Defense, or attack-to-defense ratio.
 Hover Tooltips: Display stats (e.g., name, attack, defense) on hover.
 Checkbox Toggle: Compare Legendary vs. non-Legendary Pokémon.
+
 How the Display Updates:
 - Selecting a Pokémon type highlights it, with others becoming transparent.
 - Sliders dynamically filter Pokémon based on the selected range.
@@ -288,7 +289,17 @@ ggplot(mmdata, aes(x = YEAR)) +
   theme(legend.position = "bottom") 
 ```
 
+Key Points in the New Design:
 
+Visual Tasks: The main visual tasks are to highlight the trend over time, compare the yearly performance of the two metrics, and easily spot trends and key points in the data.
+
+Trade-Offs: Using a dual line plot means sacrificing the individual point-level detail that the scatter plot provides. However, this trade-off enhances clarity in showing the overall trend and comparison between the two metrics.
+
+Legibility Improvements:
+
+Using line plots instead of scatter plots for smoother trend visualization.
+The addition of color and dual y-axes makes it easier to distinguish between the two metrics.
+The legend is moved to the bottom for clarity, making the plot less cluttered.
 
 
 
