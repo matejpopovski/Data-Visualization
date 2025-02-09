@@ -602,7 +602,7 @@ The Bar Chart Shows when relocations peaked (temporal trends).
 By integrating both spatial and temporal data, this visualization helps readers understand patterns of homeless relocation across the U.S.
 
 Final Thoughts
-This is a well-designed data visualization because: ✔ It effectively combines a geospatial and temporal view.
+This is a well-designed data visualization because: It effectively combines a geospatial and temporal view.
 It uses size, position, and color to emphasize key patterns.
 It allows readers to explore trends over both space and time.
 
