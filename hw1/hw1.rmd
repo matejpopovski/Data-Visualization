@@ -214,6 +214,7 @@ The first plot shows the Yearly Threes Share over time.
 The second plot shows the Yearly Threes Made percentage over time.
 
 ```{r}
+# [Visual Redesign] a)
 # original code
 
 shoot = read_csv("./Shooting Splits.csv")
@@ -233,8 +234,13 @@ ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_MADE)) +
   geom_point() +
   geom_smooth()
 
-
 ```
+The data focuses on shooting performance, with a focus on the percentage of "threes" made and their share in a team’s performance each year. These are scatter plots with smoothing lines.
+
+
+
+
+
 
 ```{r}
 ggplot(mmdata, aes(x = YEAR)) + 
