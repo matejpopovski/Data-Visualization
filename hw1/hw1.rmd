@@ -328,7 +328,7 @@ Gridlines & Borders provide a polished appearance.
 
 [Visual Redesign] a)
 
-Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years.
+Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years in College Basketball.
 
 The first plot shows the Yearly Threes Share over time.
 The second plot shows the Yearly Threes Made percentage over time.
