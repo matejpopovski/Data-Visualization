@@ -592,9 +592,9 @@ Who helped the homeless at the new destination.
 Data Types:
 Each column would have different data types:
 
-Categorical (Nominal)
-
+Categorical (Nominal):
 Origin City, Destination City – Names of cities.
+
 Reason for Relocation – Categories such as "Reuniting with family," "Seeking a job," etc.
 Numerical (Quantitative)
 
