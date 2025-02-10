@@ -585,6 +585,9 @@ Origin City – The city where the person was originally located.
 Destination City – The city where the person was relocated.
 Date of Relocation – The year or month when the relocation happened.
 Reason for Relocation – Possible reasons given for moving the individual.
+Who helped the homeless at the new destination.
+
+
 
 [Homelessness] b)
 Data Types:
