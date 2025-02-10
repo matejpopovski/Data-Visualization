@@ -583,10 +583,8 @@ The dataset behind this visualization likely contains rows representing individu
 
 Origin City – The city where the person was originally located.
 Destination City – The city where the person was relocated.
-Number of Relocations per Destination – The count of homeless individuals arriving at each destination.
 Date of Relocation – The year or month when the relocation happened.
 Reason for Relocation – Possible reasons given for moving the individual.
-Total Number of People Moved Each Year – Aggregated counts per year.
 
 [Homelessness] b)
 Data Types:
