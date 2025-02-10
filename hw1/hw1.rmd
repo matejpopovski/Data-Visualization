@@ -574,7 +574,7 @@ print(img)
 
 [Homelessness] a)
 
-The graph I chose is the last stage of the animation showing the movement of the homless across The US.
+The graph I chose is the last stage of the animation showing the movement of the homeless across The US.
 
 Underlying Data:
 
