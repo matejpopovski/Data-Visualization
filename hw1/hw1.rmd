@@ -580,6 +580,7 @@ Underlying Data:
 
 The dataset behind this visualization likely contains rows representing individual relocations of homeless individuals. Each row might correspond to a single relocation event, and the columns could include:
 
+Name - Name of the homeless person
 Origin City – The city where the person was originally located.
 Destination City – The city where the person was relocated.
 Date of Relocation – The date when the relocation happened.
