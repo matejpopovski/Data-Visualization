@@ -106,7 +106,7 @@ age_gender_summary <- olympics |>
 ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = Sex)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
-  labs(title = "Comparison of Average Age Between Male and Female Athletes by Sport",
+  labs(title = "Comparison of Avg Age Between Male and Female Athletes by Sport",
        x = "Sport",
        y = "Average Age",
        fill = "Gender") +
