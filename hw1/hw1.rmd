@@ -461,6 +461,7 @@ ggplot(fires, aes(x = day_of_year, y = factor(Counties, levels = county_order), 
   ) +
   scale_size_continuous(range = c(1, 6))  # Ensure correct bubble scaling
 
+
 ```
 
 Strengths of This Approach:
