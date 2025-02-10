@@ -597,6 +597,7 @@ Categorical (Nominal):
 Name, Origin City, Destination City. Reason for Relocation – Categories such as "Reuniting with family," "Seeking a job,". Who helped the homeless.
 
 Numerical (Quantitative):
+
 Number of Homeless Arrivals per Destination – Continuous values (e.g., counts).
 Date of Relocation – Could be either ordinal (yearly breakdown) or continuous (exact timestamp).
 
