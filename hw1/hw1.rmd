@@ -587,7 +587,6 @@ Reason for Relocation – Possible reasons given for moving the individual.
 Who helped the homeless at the new destination.
 
 
-
 [Homelessness] b)
 Data Types:
 Each column would have different data types:
