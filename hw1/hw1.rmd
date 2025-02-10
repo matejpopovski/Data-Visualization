@@ -609,7 +609,7 @@ This visualization uses multiple encoding techniques.
 
 Map (Geospatial Encoding)
 
-Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated.
+Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated in some period.
 Size (Area Encoding): The size of each circle represents the number of homeless people relocated to that city. Larger circles indicate more arrivals.
 Color (Red/Blue Contrast):
 Blue circles - Represent destinations where homeless individuals were moved.
