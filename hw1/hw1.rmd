@@ -54,8 +54,7 @@ ggplot(flights_speed, aes(x = carrier, y = speed)) +
   theme_minimal()
 ```
 
-
-> Looking at the first plot there is no large variance in the flight speeds accross carriers. However, if we sort them (second plot), the difference between YV and HA is not that small. 
+> Looking at the first plot I cannot see large visible variation in the flight speeds accross carriers. However, if we sort them (second plot), the difference between YV and HA is not that small. 
 
 
 ```{r}
