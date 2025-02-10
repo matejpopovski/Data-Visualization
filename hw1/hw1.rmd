@@ -128,15 +128,17 @@ ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = 
        y = "Average Age",
        fill = "Gender") +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(),  # Remove major horizontal lines
-        panel.grid.minor.y = element_blank())  # Remove minor horizontal lines
+  theme(
+        panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank()) 
 
+# I did not remove the white gaps between the sports because we compare males and females in one sport.
 
 ```
 
 > Some sports may require more experience (e.g., equestrian), while others favor younger athletes (e.g., gymnastics).
 
-> I can se bigger difference in the average age in equestrian and cycling - mountain bile, cycling - road, cycling track, and the reason behind that might be the differences in peak performance age. Another reason might be career longevity & injury risks. However, overall there are no major differences in the average ages between males and females in different sports.
+> I can see bigger difference in the average age in equestrian and cycling - mountain bike, cycling - road, cycling track, and the reason behind that might be the differences in peak performance age. Another reason might be career longevity & injury risks. However, overall there are no major differences in the average ages between males and females in different sports.
 
 
 ```{r}
