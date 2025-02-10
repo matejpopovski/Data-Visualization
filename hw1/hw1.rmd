@@ -603,8 +603,9 @@ Date type.
 
 
 [Homelessness] c)
+
 Visual Encodings:
-This visualization uses multiple encoding techniques:
+This visualization uses multiple encoding techniques.
 
 Map (Geospatial Encoding)
 
