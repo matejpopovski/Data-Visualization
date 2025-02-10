@@ -78,7 +78,9 @@ ggplot(olympics, aes(x = Sport, y = Age)) +
   labs(title = "Athlete Ages Across Sports in the 2012 London Olympics",
        x = "Sport",
        y = "Age") +
-  theme_minimal()
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank())  # Remove minor horizontal lines
 
 ```
 
