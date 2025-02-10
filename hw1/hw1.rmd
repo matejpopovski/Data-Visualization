@@ -573,7 +573,12 @@ print(img)
 ```
 
 [Homelessness] a)
+
+The whole animation
+
 Underlying Data:
+
+
 The dataset behind this visualization likely contains rows representing individual bus relocations of homeless individuals. Each row might correspond to a single relocation event, and the columns could include:
 
 Origin City – The city where the person was originally located.
