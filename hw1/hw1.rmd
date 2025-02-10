@@ -103,7 +103,9 @@ ggplot(sorted_sports, aes(x = reorder(Sport, avg_age), y = avg_age)) +
   labs(title = "Average Age of Athletes by Sport",
        x = "Sport",
        y = "Average Age") +
-  theme_minimal()
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank())  # Remove minor horizontal lines
 
 ```
 
