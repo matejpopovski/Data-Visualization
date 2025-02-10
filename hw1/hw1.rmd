@@ -588,6 +588,7 @@ Who helped the homeless at the new destination.
 
 
 [Homelessness] b)
+
 Data Types:
 Each column would have different data types:
 
