@@ -1,0 +1,211 @@
+---
+title: "HW 1 "
+output: html_notebook
+London Olympics
+ author:
+  - name: Matej Popovski
+---
+
+
+```{r}
+knitr::opts_chunk$set(cache = FALSE, message = FALSE, warning = FALSE, echo = TRUE)
+```
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+#library(RColorBrewer)
+#display.brewer.all()
+```
+
+a.	 Create a layered display that shows
+ (i) the ages of athletes across sports and 
+ (ii) the average age within each sport.
+ 
+```{r}
+
+# Load the olympics package
+olympics <- read_csv("https://uwmadison.box.com/shared/static/rzw8h2x6dp5693gdbpgxaf2koqijo12l.csv", show_col_types = FALSE)
+head(olympics)
+```
+ b. Sort the sports from lowest to highest average age.
+ 
+```{r}
+# Project the original table to columns Name, Age, Sport
+olympics_sportists <- olympics|> select(Name,Age,Sport)
+# Display the first few rows of the projected table
+head(olympics_sportists)
+```
+
+
+
+
+```{r}
+# Create table containing average age for all sports
+avg_age_by_sport <- olympics_sportists |>
+  group_by(Sport) |>
+  summarise(Avg_age = mean(Age, na.rm = TRUE)) |>
+  arrange(Avg_age)
+head(avg_age_by_sport)
+```
+
+
+```{r, fig.height = 6.7, fig.width = 4.5}
+
+# Create boxplot for age in various sports in LOndon Oimpics
+
+ggplot(olympics_sportists, aes(x = Sport, y = Age)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Athletes by Sport",
+       x = "Sport",
+       y = "Age") +
+  theme(axis.text.x=element_text(angle=90), panel.grid.major.x=element_blank())
+
+ggplot(olympics_sportists, aes(x = Sport, y = Age)) +
+  geom_point() +
+  labs(title = "Age Distribution of Athletes by Sport",
+      x = "Sport", y = "Age") +
+  theme(axis.text.x=element_text(angle=90), panel.grid.major.x=element_blank())
+```
+
+```{r, fig.height = 6.7, fig.width = 4.5}
+# Create boxplot for age in various sports in LOndon Oimpics
+
+ggplot(olympics_sportists, aes(reorder(Sport,-Age, median), y = Age)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Athletes by Sport",
+       x = "Sport",
+       y = "Age") +
+  theme(axis.text.x=element_text(angle=90), panel.grid.major.x=element_blank())
+
+ggplot(olympics_sportists, aes(reorder(Sport,-Age, mean), y = Age)) +
+  geom_point() +
+  labs(title = "Age Distribution of Athletes by Sport",
+      x = "Sport", y = "Age") +
+  theme(axis.text.x=element_text(angle=90), panel.grid.major.x=element_blank())
+```
+
+
+
+c.  Develop one new question based on these data. What makes you interested in it?
+ Provide a visualization that supports the comparisons needed to arrive at an answer.
+
+```{r  }
+# Create the scatter plot with a trend line
+# ggplot(avg_age_by_sport, aes(x = Avg_age, y = Sport)) +
+  ggplot(avg_age_by_sport, aes(x = reorder(Sport,-Avg_age, median), y=Avg_age)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Average Age of Athletes by Sport (London 2012 Olympics)",
+       x = "Average Age",
+       y = "Sport") +
+  theme(axis.text.x=element_text(angle=90), panel.grid.major.x=element_blank())
+```
+ 
+ 
+ kinezot
+ 
+```{r}
+# Create a bar plot
+ggplot(avg_age_by_sport, aes(x = reorder(Sport, -Avg_age), y = Avg_age)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(
+    x = "Sport",
+    y = "Average Age",
+    title = "Average Age of Athletes by Sport in London 2012 Olympics"
+  ) 
+
+```
+ 
+ kinez   da se dopravi so sitnici okolu bars  od prethodno
+ 
+```{r}
+# Create a bar plot with swapped axes
+ggplot(avg_age_by_sport, aes(x = Avg_age, y = reorder(Sport, Avg_age))) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    x = "Average Age",
+    y = "Sport",
+    title = "Average Age of Athletes by Sport in London 2012 Olympics"
+  ) +
+  theme(axis.text.y = element_text(hjust = 1))  # Adjust y-axis text alignment
+```
+ podobruvananja
+ 
+```{r}
+# Example: Set x-axis limits for the bar plot
+ggplot(avg_age_by_sport, aes(x = Avg_age, y = reorder(Sport, Avg_age))) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    x = "Average Age",
+    y = "Sport",
+    title = "Average Age of Athletes by Sport in London 2012 Olympics"
+  ) +
+  xlim(0, 40) +  # Set x-axis limits
+  theme_minimal()
+```
+```{r}
+# Example: Add breaks and format labels for the x-axis
+ggplot(avg_age_by_sport, aes(x = Avg_age, y = reorder(Sport, Avg_age))) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    x = "Average Age",
+    y = "Sport",
+    title = "Average Age of Athletes by Sport in London 2012 Olympics"
+  ) +
+  scale_x_continuous(breaks = seq(0, 40, by = 5)) +  # Add breaks every 5 units
+  theme_minimal()
+```
+ 
+ kinez  broj na outliers per sport  kolku ima postari ili pomladi od tie vo IQR
+ 
+ 
+```{r}
+
+# Function to identify outliers
+find_outliers <- function(x) {
+  Q1 <- quantile(x, 0.25, na.rm = TRUE)
+  Q3 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  lower_bound <- Q1 - 1.5 * IQR
+  upper_bound <- Q3 + 1.5 * IQR
+  outliers <- x[x < lower_bound | x > upper_bound]
+  return(outliers)
+}
+
+# Calculate the number of outliers per sport
+outliers_by_sport <- olympics_sportists %>%
+  group_by(Sport) %>%
+  summarise(
+    Number_of_Outliers = length(find_outliers(Age))
+  ) %>%
+  arrange(desc(Number_of_Outliers))  # Sort by number of outliers
+
+# Print the table
+print(outliers_by_sport)
+```
+ 
+ 
+ 
+```{r, fig.height = 6.7, fig.width = 6 }
+# Create a bar plot for outliers
+ggplot(outliers_by_sport, aes(x = reorder(Sport, -Number_of_Outliers), y = Number_of_Outliers)) +
+  geom_bar(stat = "identity", fill = "tomato") +
+  # theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(
+    x = "Sport",
+    y = "Number of Outliers",
+    title = "Distribution of Outliers by Sport in London 2012 Olympics"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+ Outliers can indicate unusual age distributions in certain sports, which might be worth further investigation.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
