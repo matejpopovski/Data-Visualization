@@ -41,7 +41,21 @@ ggplot(flights_speed, aes(x = carrier, y = speed)) +
 
 ```
 
-> There is no large variance in the flight speeds accross carriers.
+```{r}
+# Sort carriers by median speed
+flights_speed <- flights_speed %>%
+  mutate(carrier = reorder(carrier, speed, median, na.rm = TRUE))
+
+ggplot(flights_speed, aes(x = carrier, y = speed)) +
+  geom_boxplot() +
+  labs(title = "Variation in Flight Speed Across Carriers",
+       x = "Carrier",
+       y = "Speed (miles per hour)") +
+  theme_minimal()
+```
+
+
+> Looking at the first plot there is no large variance in the flight speeds accross carriers. However, if we sort them (second plot), the difference between YV and HA is not that small. 
 
 
 ```{r}
