@@ -449,17 +449,17 @@ ggplot(fires, aes(x = day_of_year, y = factor(Counties, levels = county_order), 
   labs(y = "County (Sorted by Acres Burned)", x = "Day of Year", size = "log(AcresBurned)") +
   theme(
     strip.background = element_rect(fill = "grey80", color = "black"),  # Grey background with black border
-    strip.text = element_text(size = 16, face = "bold", color = "black"),  # Bold black text inside the grey box
+    strip.text = element_text(size = 10, face = "bold", color = "black"),  # Bold black text inside the grey box
     axis.title = element_text(size = 16, face = "bold"),
-    axis.text.x = element_text(size = 12, angle = 45, hjust = 1),  # Rotate x-axis labels to prevent overlap
-    axis.text.y = element_text(size = 10),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1),  # Rotate x-axis labels to prevent overlap
+    axis.text.y = element_text(size = 8),
     legend.text = element_text(size = 12),
     legend.title = element_text(size = 14, face = "bold"),
     legend.position = "right",  # Position legend correctly
     panel.grid.major = element_line(color = "grey85"),  # Light grey gridlines
     panel.border = element_rect(color = "black", fill = NA, size = 1.2)  # Add a black border around the plot
   ) +
-  scale_size_continuous(range = c(1, 6))  # Ensure correct bubble scaling
+  scale_size_continuous(range = c(1, 3))  # Ensure correct bubble scaling
 
 
 ```
