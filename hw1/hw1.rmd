@@ -12,7 +12,6 @@ knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
 
 ```{r}
 #install.packages("nycflights13")
-
 library(nycflights13)
 library(dplyr)
 ```
@@ -144,8 +143,6 @@ ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = 
 ```{r}
 # [Pokemon] a)
 
-library(tidyverse)
-
 pokemon <- read_csv("https://uwmadison.box.com/shared/static/hf5cmx3ew3ch0v6t0c2x56838er1lt2c.csv")
 
 # Create the attack-to-defense ratio column
@@ -212,8 +209,6 @@ How the Display Updates:
 ```{r}
 # [Gene Expression Faceting] a)
 
-library(ggplot2)
-library(dplyr)
 library(readr)
 
 genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
@@ -426,10 +421,6 @@ The legend is moved to the bottom for clarity, making the plot less cluttered.
 
 
 ```{r}
-library(ggplot2)
-library(dplyr)
-library(readr)
-
 # Load data
 fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") %>%
   select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
