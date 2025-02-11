@@ -61,7 +61,6 @@ ggplot(flights_speed, aes(x = carrier, y = speed)) +
 
 library(tidyverse)
 
-# Load the dataset
 olympics <- read_csv("https://uwmadison.box.com/shared/static/rzw8h2x6dp5693gdbpgxaf2koqijo12l.csv")
 
 # Compute average age per sport
@@ -69,7 +68,6 @@ age_summary <- olympics |>
   group_by(Sport) |> 
   summarize(avg_age = mean(Age, na.rm = TRUE))
 
-# Plot
 ggplot(olympics, aes(x = Sport, y = Age)) +
   geom_jitter(alpha = 0.3, color = "blue", width = 0.2) +  # Individual ages
   geom_point(data = age_summary, aes(x = Sport, y = avg_age), color = "red", size = 3) +  # Average age
@@ -118,7 +116,6 @@ age_gender_summary <- olympics |>
   group_by(Sport, Sex) |> 
   summarize(avg_age = mean(Age, na.rm = TRUE))
 
-# Visualization
 ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = Sex)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
@@ -329,7 +326,6 @@ The first plot shows the Yearly Threes Share over time.
 The second plot shows the Yearly Threes Made percentage over time.
 
 ```{r}
-
 # original code
 
 shoot = read_csv("./Shooting Splits.csv")
@@ -470,7 +466,6 @@ Weaknesses of This Approach:
 
 ```{r}
 
-
 # Create box plot with Major Incident color distinction
 ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident)) +
   geom_boxplot(outlier.shape = 21, outlier.color = "black", alpha = 0.7) +  # Ensure correct transparency and outliers
@@ -486,7 +481,6 @@ ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident
     legend.title = element_text(size = 14, face = "bold"),
     legend.position = "right"  # Ensure legend is placed correctly
   )
-
 
 ```
 
@@ -506,7 +500,6 @@ top_fires <- fires %>%
   arrange(desc(AcresBurned)) %>%
   slice_head(n = 15)
 
-# Define the exact colors from the reference image
 year_colors <- c(
   "2013" = "#8DD3C7",
   "2014" = "#FFFFB3",
@@ -555,7 +548,7 @@ I did it for all 3 plots.
 [Homelessness]
 
 ```{r}
-#install.packages("magick")  # Run this if you haven't installed magick
+#install.packages("magick")
 library(magick)
 
 # Load and display the image
