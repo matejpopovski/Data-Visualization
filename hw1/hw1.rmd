@@ -586,6 +586,7 @@ Destination City – The city where the person was relocated.
 Date of Relocation – The date when the relocation happened.
 Reason for Relocation – Possible reasons given for moving the individual.
 Who helped the homeless at the new destination.
+Cost of moving.
 
 
 [Homelessness] b)
@@ -597,9 +598,10 @@ Categorical (Nominal):
 Name, Origin City, Destination City. Reason for Relocation – Categories such as "Reuniting with family," "Seeking a job,". Who helped the homeless.
 
 Numerical (Quantitative):
-The numerical data type can be produced by filtering and grouping actions.
+Cost of moving.
+Other numerical data types can be produced by filtering and grouping actions.
 
-Date type.
+Date type - individual data type.
 
 
 [Homelessness] c)
