@@ -627,6 +627,7 @@ Legend and Annotations
 A scale legend in the bottom left provides a reference for circle sizes.
 The large bold number "21,400" in the center reinforces the total number of relocations.
 
+
 [Homelessness] d)
 Multi-View Composition:
 Yes. This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
