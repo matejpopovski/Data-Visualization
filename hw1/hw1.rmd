@@ -620,7 +620,7 @@ Bar Chart (Temporal Encoding)
 
 The bottom section contains a bar chart over time (2011–2017).
 X-Axis (Time Encoding): Represents months in each year from 2011 to 2017.
-Y-Axis (Count Encoding): The height of the bars represents the number of relocations per year.
+Y-Axis (Count Encoding): The height of the bars represents the number of relocations per month/year.
 Color (Single-Hue Blue): The use of blue bars ensures consistency with the blue circles in the map.
 Legend and Annotations
 
