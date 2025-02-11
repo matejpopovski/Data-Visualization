@@ -641,4 +641,3 @@ This is a well-designed data visualization because: It effectively combines a ge
 It uses size, position, and color to emphasize key patterns.
 It allows readers to explore trends over both space and time.
 
-
