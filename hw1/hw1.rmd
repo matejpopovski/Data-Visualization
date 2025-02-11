@@ -622,8 +622,8 @@ The bottom section contains a bar chart over time (2011–2017).
 X-Axis (Time Encoding): Represents months in each year from 2011 to 2017.
 Y-Axis (Count Encoding): The height of the bars represents the number of relocations per month/year.
 Color (Single-Hue Blue): The use of blue bars ensures consistency with the blue circles in the map.
-Legend and Annotations
 
+Legend and Annotations:
 A scale legend in the bottom left provides a reference for circle sizes.
 The large bold number "21,400" in the center reinforces the total number of relocations.
 
@@ -640,4 +640,5 @@ Final Thoughts
 This is a well-designed data visualization because: It effectively combines a geospatial and temporal view.
 It uses size, position, and color to emphasize key patterns.
 It allows readers to explore trends over both space and time.
+
 
