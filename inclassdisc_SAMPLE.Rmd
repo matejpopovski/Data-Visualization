@@ -1,0 +1,12 @@
+---
+title: "inclassdisc5-1"
+output: html_document
+date: "2025-02-18"
+author: "Matej Popovski"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
