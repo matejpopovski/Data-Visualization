@@ -70,6 +70,8 @@ server <- function(input, output) {
 shinyApp(ui, server)
 ```
 
+Summary:
 
+This Shiny application visualizes bird egg characteristics by creating an interactive scatterplot of Asymmetry vs. Ellipticity. The app allows users to brush over a selection of points, highlighting them in a different color and displaying the corresponding species information in a table. The implementation follows a modular approach by defining a plotting function (scatter), setting up a ui (user interface) with a plot and a table, and implementing a server function to handle user interactions. The app uses reactiveVal to dynamically update the plot and table based on brushed selections.
 
 
