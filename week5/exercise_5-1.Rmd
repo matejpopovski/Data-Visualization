@@ -1,0 +1,75 @@
+---
+title: "inclassdisc5-1"
+output: html_document
+date: "2025-02-18"
+author: "Matej Popovski"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Load required libraries
+library(tidyverse)  # For data manipulation and visualization
+library(shiny)      # For building interactive web applications
+library(DT)         # For rendering interactive tables in Shiny
+
+# Set default ggplot theme
+theme_set(theme_bw())
+
+# Load the dataset and preprocess it
+birds <- read_csv("https://raw.githubusercontent.com/krisrs1128/stat479_s22/main/exercises/data/birds.csv") |>
+    separate(Species, c("genus", "species2"))  # Split the Species column into genus and species
+
+# Summarize data by genus, computing mean and standard deviation for selected columns
+bird_summaries <- birds |>
+    group_by(genus) |>
+    summarise(
+        across(
+            c("Asymmetry", "Ellipticity", "AvgLength (cm)", "Number of images", "Number of eggs"),
+            list(
+                MEAN = mean,  # Compute mean
+                STANDARD_DEVIATION = sd  # Compute standard deviation
+            )
+        )
+    ) |>
+    arrange(-Ellipticity_MEAN)  # Sort in descending order of mean Ellipticity
+
+# Function to create a scatterplot with brushed points highlighted
+scatter <- function(df, selected) {
+    palette <- c("#d4d4d4", "black")  # Define colors: grey for non-selected, black for selected points
+    df |>
+        mutate(selected_ = selected) |>  # Add a column indicating selection status
+        ggplot() +
+        geom_point(aes(Asymmetry, Ellipticity, color = as.factor(selected_))) +  # Scatterplot with color based on selection
+        scale_color_manual(values = palette)  # Apply custom colors
+}
+
+# Define the UI (User Interface) components
+ui <- fluidPage(
+  titlePanel("Birds Brushed Scatterplot"),  # Application title
+  plotOutput("plot", brush = "scatter_brush"),  # Scatterplot output with brushing enabled
+  DTOutput("table")  # Data table output
+)
+
+# Define the server logic
+server <- function(input, output) {
+    selected <- reactiveVal(rep(TRUE, nrow(birds)))  # Initialize selection state for all points
+     
+    observeEvent(input$scatter_brush, {  # Listen for brushing events
+        brushed_points <- brushedPoints(birds, input$scatter_brush, allRows = TRUE)  # Identify brushed points
+        selected(brushed_points$selected_)  # Update selection state
+    })
+
+    output$plot <- renderPlot(scatter(birds, selected()))  # Render the updated scatterplot
+    output$table <- renderDT(filter(birds, selected()))  # Display table of selected points
+}
+
+# Run the Shiny application
+shinyApp(ui, server)
+```
+
+
+
+
