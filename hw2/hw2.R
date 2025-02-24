@@ -76,18 +76,20 @@ server <- function(input, output) {
       theme_minimal()
   })
   
-  output$mapPlot <- renderLeaflet({
-    df <- filtered_data()
-    
-    leaflet(df) %>%
-      addTiles() %>%
-      addCircles(
-        lng = ~Longitude, lat = ~Latitude,
-        weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
-        popup = ~paste(Country, "<br>", input$cancer_type[1], ": ", df[[input$cancer_type[1]]])
+output$mapPlot <- renderLeaflet({
+  df <- filtered_data()
+  
+  leaflet(df) %>%
+    addTiles() %>%
+    addCircles(
+      lng = ~Longitude, lat = ~Latitude,
+      weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
+      popup = ~paste(
+        "<b>", Country, "</b><br>",
+        input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
       )
-  })
-}
+    )
+})
 
 # Run the application 
 shinyApp(ui = ui, server = server)
