@@ -134,13 +134,9 @@ server <- function(input, output) {
       addCircles(
         lng = ~Longitude, lat = ~Latitude,
         weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
-        popup = ~paste0(
+        popup = ~paste(
           "<b>", Country, "</b><br>",
-          paste(
-            lapply(input$cancer_type, function(ct) 
-              paste0(ct, ": ", round(df[[ct]], 0))
-            ), collapse = "<br>"
-          )
+          input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
         )
       )
   })
