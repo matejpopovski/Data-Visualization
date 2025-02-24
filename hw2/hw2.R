@@ -1,6 +1,26 @@
+---
+  title: "hw2"
+output: html_document
+author: "Matej Popovski"
+date: "`r Sys.Date()`"
+---
 
-
-Exploring the Paradox: Skin Cancer and Geographic Latitude
+# Exploring the Paradox: Skin Cancer and Geographic Latitude
+  
+# The aim of this analysis is to investigate the correlation between geographic 
+# latitude and skin cancer incidence across the world. Given that UV radiation is 
+# strongest near the equator, the expectation is that countries closer to the equator 
+# would exhibit higher rates of skin cancer. However, the data tells a different and 
+# counterintuitive story—skin cancer rates are significantly higher in northern and 
+# southern latitudes, while equatorial regions report lower incidence rates.
+  
+# Using Shiny, I built a dynamic visualization tool that allows users to filter 
+# cancer rates by year, latitude, and skin cancer type. This interactive approach 
+# helps us uncover surprising trends and explore possible explanations for this 
+# unexpected pattern.
+  
+  
+  
 
 # Install required packages if not installed
 list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr")
