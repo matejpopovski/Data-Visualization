@@ -142,3 +142,22 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)  # Ensure this is at the very end
+
+
+# Conclusion
+# First and foremost, this analysis operates under the assumption that all countries 
+# accurately report their skin cancer cases, ensuring that the data used is reliable 
+# and comparable across regions. Based on the findings, the results challenge the 
+# conventional belief that greater sun exposure leads to higher skin cancer rates. 
+# In reality, the data shows that countries near the equator, where people are exposed 
+# to intense sunlight year-round, report significantly fewer skin cancer cases compared 
+# to those in higher latitudes. Interestingly, continents with highly developed 
+# cosmetic and pharmaceutical industries—such as North America, Europe, and 
+# Australia—exhibit the highest skin cancer rates. This raises an important question: 
+# Could lifestyle factors, dietary habits, and the use of skincare and cosmetic 
+# products contribute to skin cancer more than previously thought? While UV radiation 
+# remains a known risk factor, this analysis suggests that modern living conditions, 
+# healthcare accessibility, and possibly even chemical exposure from cosmetic products 
+# and processed foods may play a much larger role in skin cancer prevalence than we 
+# currently assume. This warrants further investigation into how our daily choices and 
+# environment influence long-term health outcomes.
