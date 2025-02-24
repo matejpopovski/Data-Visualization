@@ -47,7 +47,7 @@
 
 
 # Install required packages if not installed
-list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr")
+list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr", "DT")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -58,6 +58,7 @@ library(dplyr)
 library(tidyverse)
 library(leaflet)
 library(readr)
+library(DT)  # For interactive tables
 
 # Load cancer dataset (modify path accordingly)
 cancer_data <- read_csv("cancer.csv")
@@ -91,7 +92,8 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("Scatter Plot", plotOutput("scatterPlot")),
-        tabPanel("Map View", leafletOutput("mapPlot"))
+        tabPanel("Map View", leafletOutput("mapPlot")),
+        tabPanel("Sorted Table", DTOutput("sortedTable"))  # New tab for the table
       )
     )
   )
@@ -132,16 +134,31 @@ server <- function(input, output) {
       addCircles(
         lng = ~Longitude, lat = ~Latitude,
         weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
-        popup = ~paste(
+        popup = ~paste0(
           "<b>", Country, "</b><br>",
-          input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
+          paste(
+            lapply(input$cancer_type, function(ct) 
+              paste0(ct, ": ", round(df[[ct]], 0))
+            ), collapse = "<br>"
+          )
         )
       )
   })
-}  # <-- Ensure this bracket is properly placed to close the server function
+  
+  output$sortedTable <- renderDT({
+    df <- filtered_data()
+    
+    # Sort the table by cancer rate in descending order
+    df_sorted <- df %>%
+      arrange(desc(df[[input$cancer_type[1]]])) 
+    
+    datatable(df_sorted, options = list(pageLength = 10), rownames = FALSE)
+  })
+}
 
 # Run the application 
-shinyApp(ui = ui, server = server)  # Ensure this is at the very end
+shinyApp(ui = ui, server = server)
+
 
 
 # Conclusion
