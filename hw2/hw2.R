@@ -19,6 +19,33 @@
 # helps us uncover surprising trends and explore possible explanations for this 
 # unexpected pattern.
 
+# The first plot, a scatter plot with a regression line, allows for dynamic exploration 
+# of the relationship between latitude and skin cancer rates using Shiny’s interactive queries. 
+# By adjusting the latitude range dynamically, I was able to observe two distinct trends. 
+# When selecting a latitude range between -40 to 0 degrees (Southern Hemisphere closer to 
+# the equator), the regression line decreased, suggesting a lower incidence of skin cancer. 
+# However, when adjusting the latitude range to 0 to 70 degrees (Northern Hemisphere moving 
+# away from the equator), the regression line started increasing, revealing a higher number 
+# of reported cases. This directly supports the argument that UV exposure alone is not the main 
+# driving factor of skin cancer, as populations living in equatorial regions—where sunlight is 
+# strongest—do not exhibit the highest rates. Instead, genetics, healthcare accessibility, and 
+# lifestyle choices appear to have a much greater influence on skin cancer prevalence.
+
+# The second visualization, a world map with interactive bubbles, provides a geospatial 
+# perspective on skin cancer incidence across different countries. Each country is represented 
+# by a bubble, where the size corresponds to the number of skin cancer cases per 100,000 
+# people per year. By leveraging Shiny’s dynamic interactivity, users can hover over any 
+# country to view precise cancer rates, allowing for an intuitive exploration of regional 
+# differences. The map reveals a striking pattern—countries at higher latitudes, such as 
+# Australia, New Zealand, Canada, and Northern Europe, have the largest bubbles, indicating 
+# the highest incidence rates. Meanwhile, equatorial regions display significantly smaller 
+# bubbles, further reinforcing the unexpected conclusion that higher UV exposure does not 
+# necessarily correlate with more skin cancer cases. Instead, factors like genetic susceptibility, 
+# healthcare infrastructure, and early detection efforts play a crucial role in the reported 
+# incidence rates, emphasizing that sun exposure alone is not the dominant cause of skin cancer 
+# on a global scale.
+
+
 # Install required packages if not installed
 list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
