@@ -1,3 +1,7 @@
+
+
+Exploring the Paradox: Skin Cancer and Geographic Latitude
+
 # Install required packages if not installed
 list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -76,20 +80,21 @@ server <- function(input, output) {
       theme_minimal()
   })
   
-output$mapPlot <- renderLeaflet({
-  df <- filtered_data()
-  
-  leaflet(df) %>%
-    addTiles() %>%
-    addCircles(
-      lng = ~Longitude, lat = ~Latitude,
-      weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
-      popup = ~paste(
-        "<b>", Country, "</b><br>",
-        input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
+  output$mapPlot <- renderLeaflet({
+    df <- filtered_data()
+    
+    leaflet(df) %>%
+      addTiles() %>%
+      addCircles(
+        lng = ~Longitude, lat = ~Latitude,
+        weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
+        popup = ~paste(
+          "<b>", Country, "</b><br>",
+          input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
+        )
       )
-    )
-})
+  })
+}  # <-- Ensure this bracket is properly placed to close the server function
 
 # Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server)  # Ensure this is at the very end
