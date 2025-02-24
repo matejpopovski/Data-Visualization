@@ -1,9 +1,9 @@
----
-  title: "hw2"
-output: html_document
-author: "Matej Popovski"
-date: "`r Sys.Date()`"
----
+#---
+#title: "hw2"
+#output: html_document
+#author: "Matej Popovski"
+#date: "`r Sys.Date()`"
+#---
 
 # Exploring the Paradox: Skin Cancer and Geographic Latitude
   
