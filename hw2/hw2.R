@@ -18,9 +18,6 @@ date: "`r Sys.Date()`"
 # cancer rates by year, latitude, and skin cancer type. This interactive approach 
 # helps us uncover surprising trends and explore possible explanations for this 
 # unexpected pattern.
-  
-  
-  
 
 # Install required packages if not installed
 list.of.packages <- c("shiny", "ggplot2", "dplyr", "tidyverse", "leaflet", "readr")
