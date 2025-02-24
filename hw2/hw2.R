@@ -161,3 +161,4 @@ shinyApp(ui = ui, server = server)  # Ensure this is at the very end
 # and processed foods may play a much larger role in skin cancer prevalence than we 
 # currently assume. This warrants further investigation into how our daily choices and 
 # environment influence long-term health outcomes.
+
