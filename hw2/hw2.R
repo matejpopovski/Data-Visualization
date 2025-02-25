@@ -140,6 +140,8 @@ server <- function(input, output) {
         )
       )
   })
+
+  
   
   output$sortedTable <- renderDT({
     df <- filtered_data()
