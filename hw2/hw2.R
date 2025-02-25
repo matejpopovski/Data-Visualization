@@ -146,13 +146,13 @@ server <- function(input, output) {
   })
   
   
-
-  
-  
-  output$sortedTable <- renderDT({
+output$sortedTable <- renderDT({
     df <- filtered_data()
     
-    # Sort the table by cancer rate in descending order
+    # Round all numeric columns to whole numbers
+    df[input$cancer_type] <- round(df[input$cancer_type], 0)
+    
+    # Sort the table by the first selected cancer type in descending order
     df_sorted <- df %>%
       arrange(desc(df[[input$cancer_type[1]]])) 
     
