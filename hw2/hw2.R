@@ -133,13 +133,19 @@ server <- function(input, output) {
       addTiles() %>%
       addCircles(
         lng = ~Longitude, lat = ~Latitude,
-        weight = 1, radius = ~sqrt(df[[input$cancer_type[1]]]) * 5000,
-        popup = ~paste(
-          "<b>", Country, "</b><br>",
-          input$cancer_type[1], ": ", round(df[[input$cancer_type[1]]])
+        weight = 1, 
+        radius = ~sqrt(rowSums(df[input$cancer_type], na.rm = TRUE)) * 5000,  # Bubble size based on total cases
+        popup = ~paste0(
+          "<b>", Country, "</b><br>",  # Display country name in bold
+          if ("Malignant skin melanoma" %in% input$cancer_type) 
+            paste0("Malignant skin melanoma: ", round(df[["Malignant skin melanoma"]], 0), "<br>") else "",
+          if ("Non-melanoma skin cancer" %in% input$cancer_type) 
+            paste0("Non-melanoma skin cancer: ", round(df[["Non-melanoma skin cancer"]], 0))
         )
       )
   })
+  
+  
 
   
   
