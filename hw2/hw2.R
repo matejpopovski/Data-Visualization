@@ -163,7 +163,18 @@ output$sortedTable <- renderDT({
 # Run the application 
 shinyApp(ui = ui, server = server)
 
-
+# Understanding the Sorted Table: A Tool for Comparative Analysis
+# The sorted table provides a structured and numerical overview of the selected data, 
+# making it an essential component for comparing skin cancer incidence across different 
+# countries. Unlike the scatter plot and world map, which offer visual trends and 
+# geographical insights, the table presents a precise, ranked list of countries based 
+# on their reported cases of Malignant Skin Melanoma and Non-Melanoma Skin Cancer. 
+# This allows users to quickly identify the countries with the highest or lowest cancer 
+# rates, aiding in deeper analysis of regional patterns. The ability to filter by year 
+# and latitude range makes it even more valuable for understanding temporal trends and 
+# geographic disparities. Additionally, by rounding all values to whole numbers, the 
+# table ensures clarity and readability, making it a powerful tool for data-driven 
+# decision-making and research.
 
 # Conclusion
 # First and foremost, this analysis operates under the assumption that all countries 
