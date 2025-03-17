@@ -231,7 +231,9 @@ ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigra
 
 
 
-##2
+##2 World Map Shiny
+
+
 # Load necessary libraries
 library(shiny)
 library(ggplot2)
@@ -275,13 +277,14 @@ color_palette <- rev(brewer.pal(10, "Spectral"))
 
 # Shiny UI
 ui <- fluidPage(
-  titlePanel("Interactive Global Immigration Map to the U.S."),
+  titlePanel("Interactive Global Immigration Map to the U.S. (Zoom & Hover Enabled)"),
   sidebarLayout(
     sidebarPanel(
-      helpText("Hover over a country to see the total number of illegal immigrants and their percentage share.")
+      helpText("Hover over a country to see the total number of illegal immigrants and their percentage share. 
+               Use scroll/drag to zoom in and out.")
     ),
     mainPanel(
-      plotlyOutput("immigrationMap")
+      plotlyOutput("immigrationMap", height = "700px")
     )
   )
 )
@@ -299,7 +302,7 @@ server <- function(input, output) {
     ))) +
       geom_polygon(color = "black") +
       scale_fill_gradientn(
-        colors = color_palette,  # Now reversed so red is strongest
+        colors = color_palette,  # Reversed so red is strongest
         name = "Immigrant Share (%)",
         breaks = seq(0, max(map_data_merged$percentage, na.rm = TRUE), length.out = 10),
         labels = function(x) paste0(round(x, 1), "%"),
@@ -312,12 +315,21 @@ server <- function(input, output) {
       theme_minimal() +
       theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
     
-    # Convert ggplot to interactive Plotly object
-    ggplotly(p, tooltip = "text")
+    # Convert ggplot to interactive Plotly object and enable zooming
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        geo = list(
+          scope = "world",
+          showframe = FALSE,
+          showcoastlines = TRUE,
+          projection = list(type = "natural earth")  # Enables zoom & drag
+        )
+      )
   })
 }
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
+
 
 
