@@ -134,6 +134,53 @@ ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigra
 
 
 
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(lubridate)
+
+# Load the dataset
+df <- read_csv("cbp_resp.csv")
+
+# Ensure fiscal_year is numeric and filter out invalid rows
+df <- df %>% 
+  filter(!is.na(fiscal_year) & !is.na(encounter_count) & !is.na(month_abbv)) %>%
+  mutate(fiscal_year = as.numeric(fiscal_year))
+
+# Define a mapping of month abbreviations to numeric months
+month_order <- c("JAN" = 1, "FEB" = 2, "MAR" = 3, "APR" = 4, "MAY" = 5, "JUN" = 6,
+                 "JUL" = 7, "AUG" = 8, "SEP" = 9, "OCT" = 10, "NOV" = 11, "DEC" = 12)
+
+# Convert month abbreviations to numeric values
+df <- df %>%
+  mutate(month_num = month_order[month_abbv]) %>%
+  mutate(date = as.Date(paste(fiscal_year, month_num, "01", sep = "-")))  # Create Year-Month date
+
+# Aggregate data to get total encounters per Year-Month
+monthly_totals <- df %>%
+  group_by(date, month_abbv) %>%
+  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE)) %>%
+  ungroup()
+
+# Create the plot with Year-Month on x-axis
+ggplot(monthly_totals, aes(x = date, y = total_immigrants, color = month_abbv)) +
+  geom_point(alpha = 0.6, size = 2) +  # Scatter points for each month
+  geom_smooth(se = FALSE, span = 0.3) +  # Smooth trend line for monthly variations
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", size = 1) +  # Regression line
+  scale_x_date(date_labels = "%b %Y", date_breaks = "6 months") +  # Format x-axis to show Month-Year
+  labs(title = "Total Number of Immigrants Per Month and Year",
+       subtitle = "Colored scatter for each month, with smooth trend and linear regression",
+       x = "Year-Month",
+       y = "Total Immigrants",
+       color = "Month") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for readability
+        legend.position = "right")
+
+
+
+
 
 
 
