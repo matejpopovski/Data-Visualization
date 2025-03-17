@@ -119,116 +119,7 @@ server <- function(input, output) {
 # Run the application
 shinyApp(ui = ui, server = server)
 
-
-
-
-
-
-
-
-
-
-## -----------
-
-# Aggregate data: sum of encounters by citizenship (country)
-immigration_by_country <- df %>%
-  filter(!is.na(citizenship) & !is.na(encounter_count)) %>%
-  group_by(citizenship) %>%
-  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE))
-
-# Load world map data
-world_map <- map_data("world")
-
-# Rename country column to match map data
-immigration_by_country <- immigration_by_country %>%
-  rename(region = citizenship)
-
-# Merge immigration data with map data
-map_data_merged <- left_join(world_map, immigration_by_country, by = "region")
-
-# Replace NA values with 0 for countries with no data
-map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
-
-# Apply log scale to total_immigrants for better contrast
-map_data_merged$log_immigrants <- log10(map_data_merged$total_immigrants + 1)  # Avoid log(0)
-
-# Create the map with log-scale coloring
-ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
-  geom_polygon(color = "black") +
-  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Log Immigrants") +  # Log scale for better contrast
-  labs(title = "Global Immigration Intensity to the U.S.",
-       subtitle = "Shading represents the number of immigrants from each country (Log Scale)",
-       x = "", y = "") +
-  theme_minimal() +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
-
-##---
-
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-library(readr)
-library(maps)
-
-# Load dataset
-df <- read_csv("cbp_resp.csv")
-
-# Aggregate data: total encounters by land border region
-border_aggregated <- df %>%
-  filter(!is.na(land_border_region) & !is.na(encounter_count)) %>%
-  group_by(land_border_region) %>%
-  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE))
-
-# Print to check border names
-print(border_aggregated)
-
-# Load U.S. state map data
-us_map <- map_data("state")
-
-# Manually map border regions to corresponding states (approximate)
-border_state_map <- data.frame(
-  land_border_region = c("Northern Land Border", "Southern Land Border"),
-  state = c("montana", "texas")  # Main representative state
-)
-
-# Merge aggregated data with state-level mapping
-border_data_merged <- left_join(border_aggregated, border_state_map, by = "land_border_region")
-
-# Merge with U.S. map data
-us_map$region <- as.character(us_map$region)  # Ensure regions match
-map_data_merged <- left_join(us_map, border_data_merged, by = c("region" = "state"))
-
-# Replace NA values with 0 for missing regions
-map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
-
-# Apply log scale to encounters for better contrast
-map_data_merged$log_immigrants <- log10(map_data_merged$total_immigrants + 1)
-
-# Create the U.S. border map
-ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
-  geom_polygon(color = "black") +
-  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Log Immigrants") +  # Log scale for better contrast
-  labs(title = "Illegal Immigrant Entry Points in the U.S.",
-       subtitle = "Shading represents the number of encounters at different borders (Log Scale)",
-       x = "", y = "") +
-  theme_minimal() +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
-
-# ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### ----------
 
 
 ##2 World Map Shiny
@@ -330,6 +221,79 @@ server <- function(input, output) {
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
+
+
+
+
+##---
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(maps)
+
+# Load dataset
+df <- read_csv("cbp_resp.csv")
+
+# Aggregate data: total encounters by land border region
+border_aggregated <- df %>%
+  filter(!is.na(land_border_region) & !is.na(encounter_count)) %>%
+  group_by(land_border_region) %>%
+  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE))
+
+# Print to check border names
+print(border_aggregated)
+
+# Load U.S. state map data
+us_map <- map_data("state")
+
+# Manually map border regions to corresponding states (approximate)
+border_state_map <- data.frame(
+  land_border_region = c("Northern Land Border", "Southern Land Border"),
+  state = c("montana", "texas")  # Main representative state
+)
+
+# Merge aggregated data with state-level mapping
+border_data_merged <- left_join(border_aggregated, border_state_map, by = "land_border_region")
+
+# Merge with U.S. map data
+us_map$region <- as.character(us_map$region)  # Ensure regions match
+map_data_merged <- left_join(us_map, border_data_merged, by = c("region" = "state"))
+
+# Replace NA values with 0 for missing regions
+map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
+
+# Apply log scale to encounters for better contrast
+map_data_merged$log_immigrants <- log10(map_data_merged$total_immigrants + 1)
+
+# Create the U.S. border map
+ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
+  geom_polygon(color = "black") +
+  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Log Immigrants") +  # Log scale for better contrast
+  labs(title = "Illegal Immigrant Entry Points in the U.S.",
+       subtitle = "Shading represents the number of encounters at different borders (Log Scale)",
+       x = "", y = "") +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+
+# ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
