@@ -5,42 +5,128 @@
 #date: "16 Mar 2025"
 #---
 
+# 1. Shiny and regression:
+
 # Load necessary libraries
+library(shiny)
 library(ggplot2)
 library(dplyr)
 library(readr)
+library(scales)
+library(lubridate)
 
-# Load the dataset
+# Load dataset
 df <- read_csv("cbp_resp.csv")
-
-# Check the first few rows
-head(df)
-
-# Check fiscal_year column
-str(df$fiscal_year)
-unique(df$fiscal_year)  # See what values exist
 
 # Ensure fiscal_year is numeric and filter out invalid rows
 df <- df %>% 
-  filter(!is.na(fiscal_year) & !is.na(encounter_count)) %>%
+  filter(!is.na(fiscal_year) & !is.na(encounter_count) & !is.na(month_abbv) & 
+           !is.na(demographic) & !is.na(encounter_type)) %>%
   mutate(fiscal_year = as.numeric(fiscal_year))
 
-# Aggregate data to get total encounters per year
-yearly_totals <- df %>%
-  group_by(fiscal_year) %>%
-  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE))
+# Define a mapping of month abbreviations to numeric months
+month_order <- c("JAN" = 1, "FEB" = 2, "MAR" = 3, "APR" = 4, "MAY" = 5, "JUN" = 6,
+                 "JUL" = 7, "AUG" = 8, "SEP" = 9, "OCT" = 10, "NOV" = 11, "DEC" = 12)
 
-# Check if yearly_totals has data
-print(yearly_totals)
+# Convert month abbreviations to numeric values & create date column
+df <- df %>%
+  mutate(month_num = month_order[month_abbv]) %>%
+  mutate(date = as.Date(paste(fiscal_year, month_num, "01", sep = "-")))
 
-# Create the plot
-ggplot(yearly_totals, aes(x = fiscal_year, y = total_immigrants)) +
-  geom_point(color = "blue") +  # Scatter points
-  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +  # Regression line
-  labs(title = "Total Number of Immigrants Per Year",
-       x = "Year",
-       y = "Total Immigrants") +
-  theme_minimal()
+# **Filter data only for "Inadmissibles" encounter type**
+df <- df %>% filter(encounter_type == "Inadmissibles")
+
+# Create the Shiny app
+ui <- fluidPage(
+  
+  # App title
+  titlePanel("Immigrant Encounters (Inadmissibles) by Demographic"),
+  
+  # Sidebar layout
+  sidebarLayout(
+    
+    # Sidebar panel with dropdown input
+    sidebarPanel(
+      selectInput("selected_demo", "Choose a Demographic:", 
+                  choices = unique(df$demographic), 
+                  selected = unique(df$demographic)[1])
+    ),
+    
+    # Main panel with plot
+    mainPanel(
+      plotOutput("regressionPlot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  # Reactive filtered data based on selected demographic
+  filtered_data <- reactive({
+    df %>%
+      filter(demographic == input$selected_demo) %>%
+      count(date, wt = encounter_count, name = "total_encounters")
+  })
+  
+  # Render plot
+  output$regressionPlot <- renderPlot({
+    
+    ggplot(filtered_data(), aes(x = date, y = total_encounters)) +
+      # Red scatter points
+      geom_point(color = "#C10000", alpha = 0.5) +
+      
+      # LOESS smooth trend line
+      geom_smooth(method = "loess", color = "#0F4962", se = FALSE) +
+      
+      # Best-fit polynomial regression curve
+      geom_smooth(method = "lm", formula = y ~ poly(x, 3), color = "purple", se = FALSE, linetype = "dashed") +
+      
+      # Format x-axis to show yearly breaks
+      scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+      
+      # Format y-axis with comma separators
+      scale_y_continuous(labels = comma_format()) +
+      
+      # Labels and title
+      labs(
+        x = NULL,
+        y = NULL,
+        title = paste("Inadmissibles Encounters for:", input$selected_demo),
+        subtitle = "Per Month, Jan 2020 - Sep 2024",
+        caption = "Source: U.S. Customs and Border Patrol"
+      ) +
+      
+      # Custom theme styling
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border = element_blank(),
+        
+        # Title formatting
+        plot.title = element_text(size = 20, face = "bold"),
+        
+        # Horizontal grid lines
+        panel.grid.major.y = element_line(color = "gray60", linewidth = 0.25),
+        panel.grid.minor.y = element_line(color = "gray90", linewidth = 0.25),
+        
+        # X-axis text margin
+        axis.text.x = element_text(margin = margin(t = -10))
+      )
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+
+
+
+
+
+
+
+
+
 
 ## -----------
 
@@ -142,6 +228,62 @@ ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigra
 
 
 
+
+
+
+##2
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(maps)
+
+# Load the dataset
+immigrants <- read_csv("from_where_immigrants.csv")
+
+# Rename columns for easier merging
+colnames(immigrants) <- c("region", "total_immigrants")
+
+# Exclude "Other" as it's not a real country
+immigrants <- immigrants %>%
+  filter(region != "Other")
+
+# Load world map data
+world_map <- map_data("world")
+
+# Fix country names to match world map dataset
+immigrants <- immigrants %>%
+  mutate(region = recode(region,
+                         "China" = "China",
+                         "Russia" = "Russian Federation",
+                         "Myanmar (Burma)" = "Myanmar",
+                         "Turkey" = "Türkiye"
+  ))
+
+# Check for mismatches
+mismatched_countries <- setdiff(immigrants$region, unique(world_map$region))
+print(mismatched_countries)  # Debugging step
+
+# Merge immigration data with world map data
+map_data_merged <- left_join(world_map, immigrants, by = "region")
+
+# Replace NA values with 0 for missing regions
+map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
+
+# Apply log scale transformation for better color contrast
+map_data_merged$log_immigrants <- log1p(map_data_merged$total_immigrants)
+
+# Create the world map visualization
+ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
+  geom_polygon(color = "black") +
+  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Immigrants (Log Scale)") +  
+  labs(title = "Global Immigration to the U.S.",
+       subtitle = "Shading represents the total number of immigrants (FY 2021–2024)",
+       x = "", y = "",
+       caption = "Source: U.S. Customs and Border Patrol") +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
 
 
 
