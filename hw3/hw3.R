@@ -232,13 +232,14 @@ ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigra
 
 
 ##2
-
 # Load necessary libraries
+library(shiny)
 library(ggplot2)
 library(dplyr)
 library(readr)
 library(maps)
 library(RColorBrewer)
+library(plotly)
 
 # Load the dataset
 immigrants <- read_csv("from_where_immigrants.csv")
@@ -246,9 +247,9 @@ immigrants <- read_csv("from_where_immigrants.csv")
 # Rename columns for easier merging
 colnames(immigrants) <- c("region", "total_immigrants")
 
-# Exclude "Other" as it's not a real country
+# Exclude "Other" as it's not a real country & Exclude USA
 immigrants <- immigrants %>%
-  filter(region != "Other")
+  filter(region != "Other" & region != "United States")
 
 # Calculate total immigration count (for percentage calculation)
 total_immigrants_all <- sum(immigrants$total_immigrants)
@@ -263,27 +264,60 @@ world_map <- map_data("world")
 # Merge immigration data with world map data
 map_data_merged <- left_join(world_map, immigrants, by = "region")
 
-# Replace NA values with 0 for missing regions
-map_data_merged$percentage[is.na(map_data_merged$percentage)] <- 0
+# Ensure USA remains uncolored by setting its percentage to NA
+map_data_merged$percentage[map_data_merged$region == "USA"] <- NA
 
-# Define a custom 10-color palette and reverse it
-color_palette <- rev(brewer.pal(10, "Spectral"))  # Reverse order so red is strongest
+# Set countries with 0% immigration to NA so they remain white
+map_data_merged$percentage[map_data_merged$percentage == 0] <- NA
 
-# Create the world map visualization using percentage-based coloring with 10 reversed colors
-ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = percentage)) +
-  geom_polygon(color = "black") +
-  scale_fill_gradientn(
-    colors = color_palette,  # Now reversed so red is strongest
-    name = "Immigrant Share (%)",
-    breaks = seq(0, max(map_data_merged$percentage), length.out = 10),
-    labels = function(x) paste0(round(x, 1), "%")
-  ) +
-  labs(title = "Global Immigration Percentage to the U.S.",
-       subtitle = "Shading represents each country's share of total U.S. immigrants",
-       x = "", y = "",
-       caption = "Source: U.S. Customs and Border Patrol") +
-  theme_minimal() +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+# Define a custom 10-color palette and reverse it (red = strongest, blue = weakest)
+color_palette <- rev(brewer.pal(10, "Spectral"))
 
+# Shiny UI
+ui <- fluidPage(
+  titlePanel("Interactive Global Immigration Map to the U.S."),
+  sidebarLayout(
+    sidebarPanel(
+      helpText("Hover over a country to see the total number of illegal immigrants and their percentage share.")
+    ),
+    mainPanel(
+      plotlyOutput("immigrationMap")
+    )
+  )
+)
+
+# Shiny Server
+server <- function(input, output) {
+  
+  output$immigrationMap <- renderPlotly({
+    
+    # Create the ggplot map
+    p <- ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = percentage, text = paste(
+      "Country: ", region, "<br>",
+      "Total Immigrants: ", scales::comma(total_immigrants), "<br>",
+      "Percentage: ", round(percentage, 2), "%"
+    ))) +
+      geom_polygon(color = "black") +
+      scale_fill_gradientn(
+        colors = color_palette,  # Now reversed so red is strongest
+        name = "Immigrant Share (%)",
+        breaks = seq(0, max(map_data_merged$percentage, na.rm = TRUE), length.out = 10),
+        labels = function(x) paste0(round(x, 1), "%"),
+        na.value = "white"  # Ensures USA and 0% immigration countries remain uncolored (white)
+      ) +
+      labs(title = "Global Immigration Percentage to the U.S.",
+           subtitle = "Shading represents each country's share of total U.S. immigrants",
+           x = "", y = "",
+           caption = "Source: U.S. Customs and Border Patrol") +
+      theme_minimal() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+    
+    # Convert ggplot to interactive Plotly object
+    ggplotly(p, tooltip = "text")
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
 
 
