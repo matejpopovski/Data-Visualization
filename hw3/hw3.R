@@ -238,6 +238,7 @@ library(ggplot2)
 library(dplyr)
 library(readr)
 library(maps)
+library(RColorBrewer)
 
 # Load the dataset
 immigrants <- read_csv("from_where_immigrants.csv")
@@ -249,43 +250,40 @@ colnames(immigrants) <- c("region", "total_immigrants")
 immigrants <- immigrants %>%
   filter(region != "Other")
 
+# Calculate total immigration count (for percentage calculation)
+total_immigrants_all <- sum(immigrants$total_immigrants)
+
+# Compute percentage contribution of each country
+immigrants <- immigrants %>%
+  mutate(percentage = (total_immigrants / total_immigrants_all) * 100)  # Convert to percentage
+
 # Load world map data
 world_map <- map_data("world")
-
-# Fix country names to match world map dataset
-immigrants <- immigrants %>%
-  mutate(region = recode(region,
-                         "China" = "China",
-                         "Russia" = "Russian Federation",
-                         "Myanmar (Burma)" = "Myanmar",
-                         "Turkey" = "Türkiye"
-  ))
-
-# Check for mismatches
-mismatched_countries <- setdiff(immigrants$region, unique(world_map$region))
-print(mismatched_countries)  # Debugging step
 
 # Merge immigration data with world map data
 map_data_merged <- left_join(world_map, immigrants, by = "region")
 
 # Replace NA values with 0 for missing regions
-map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
+map_data_merged$percentage[is.na(map_data_merged$percentage)] <- 0
 
-# Apply log scale transformation for better color contrast
-map_data_merged$log_immigrants <- log1p(map_data_merged$total_immigrants)
+# Define a custom 10-color palette and reverse it
+color_palette <- rev(brewer.pal(10, "Spectral"))  # Reverse order so red is strongest
 
-# Create the world map visualization
-ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
+# Create the world map visualization using percentage-based coloring with 10 reversed colors
+ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = percentage)) +
   geom_polygon(color = "black") +
-  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Immigrants (Log Scale)") +  
-  labs(title = "Global Immigration to the U.S.",
-       subtitle = "Shading represents the total number of immigrants (FY 2021–2024)",
+  scale_fill_gradientn(
+    colors = color_palette,  # Now reversed so red is strongest
+    name = "Immigrant Share (%)",
+    breaks = seq(0, max(map_data_merged$percentage), length.out = 10),
+    labels = function(x) paste0(round(x, 1), "%")
+  ) +
+  labs(title = "Global Immigration Percentage to the U.S.",
+       subtitle = "Shading represents each country's share of total U.S. immigrants",
        x = "", y = "",
        caption = "Source: U.S. Customs and Border Patrol") +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
-
-
 
 
 
