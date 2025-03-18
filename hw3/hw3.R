@@ -243,10 +243,15 @@ state_data <- read_csv("per_state.csv")
 # Rename columns for consistency
 colnames(state_data) <- c("state", "total_immigrants", "percentage")
 
-# Ensure no NA values in state data
+# Ensure percentage is numeric (floating-point values)
+state_data$percentage <- as.numeric(state_data$percentage)
+
+# Replace NA or Inf values with 0 (to prevent scale_fill_gradientn errors)
 state_data <- state_data %>%
-  mutate(total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants),
-         percentage = ifelse(is.na(percentage), 0, percentage))
+  mutate(
+    total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants),
+    percentage = ifelse(is.na(percentage) | is.infinite(percentage), 0, percentage)
+  )
 
 # Load US map data
 us_states <- map_data("state")
@@ -256,10 +261,6 @@ state_data$state <- tolower(state_data$state)
 
 # Merge state-level data with map data
 us_map <- left_join(us_states, state_data, by = c("region" = "state"))
-
-# Ensure missing values (NA) are set to 0 for visualization
-us_map$total_immigrants[is.na(us_map$total_immigrants)] <- 0
-us_map$percentage[is.na(us_map$percentage)] <- 0
 
 # Define a custom 10-color palette (red = most immigrants, white = least)
 color_palette <- rev(colorRampPalette(c("red", "white"))(10))
@@ -296,8 +297,9 @@ server <- function(input, output) {
       scale_fill_gradientn(
         colors = color_palette, 
         name = "Immigrant Share (%)",
-        breaks = seq(0, max(us_map$percentage, na.rm = TRUE), length.out = 10),
-        labels = function(x) paste0(round(x, 1), "%"),
+        breaks = seq(min(us_map$percentage, na.rm = TRUE), 
+                     max(us_map$percentage, na.rm = TRUE), length.out = 10),
+        labels = function(x) paste0(round(x, 2), "%"),
         na.value = "white"
       ) +
       labs(title = "State-Level Immigration Intensity (2021-2024)",
@@ -321,6 +323,7 @@ server <- function(input, output) {
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
+
 
 
 
