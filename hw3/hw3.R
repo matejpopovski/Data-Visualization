@@ -125,11 +125,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 
-### ----------
-
-
-
-##2 World Map Shiny
+# 2. World Map Shiny:
 
 
 # Load necessary libraries
