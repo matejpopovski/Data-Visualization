@@ -267,8 +267,8 @@ state_data$state <- tolower(state_data$state)
 # Merge state-level data with map data
 us_map <- left_join(us_states, state_data, by = c("region" = "state"))
 
-# Define a custom 10-color palette (red = most immigrants, white = least)
-color_palette <- rev(colorRampPalette(c("red", "white"))(10))
+# Define a 100-color palette (White = Highest, Red = Lowest)
+color_palette <- colorRampPalette(c("white", "red"))(100)  # Opposite of before
 
 # Shiny UI
 ui <- fluidPage(
@@ -276,7 +276,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       helpText("Hover over a state to see immigration details. 
-               Darker red means more immigrants, lighter means fewer.")
+               Darker red means fewer immigrants, white means the most.")
     ),
     mainPanel(
       plotlyOutput("stateMap", height = "700px")
@@ -304,8 +304,8 @@ server <- function(input, output) {
         name = "Immigrant Share (%)",
         breaks = seq(min(us_map$percentage, na.rm = TRUE), 
                      max(us_map$percentage, na.rm = TRUE), length.out = 10),
-        labels = function(x) paste0(round(x * 100, 2), "%"),  # Convert back to display %
-        na.value = "white"
+        labels = function(x) paste0(round(x * 100, 2), "%"),
+        na.value = "gray90"  # Keeps missing values in a light gray color
       ) +
       labs(title = "State-Level Immigration Intensity (2021-2024)",
            subtitle = "Shading represents total immigrants in each state",
@@ -330,9 +330,181 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 
+## -----
 
 
 
+# Load necessary libraries
+library(shiny)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(maps)
+library(RColorBrewer)
+library(plotly)
+library(stringr)
+
+# Load state-level immigration data
+state_data <- read_csv("per_state.csv")
+
+# Rename columns for consistency
+colnames(state_data) <- c("state", "total_immigrants", "percentage")
+
+# Convert 'percentage' column: Remove '%' and convert to numeric
+state_data <- state_data %>%
+  mutate(
+    percentage = as.numeric(str_replace(percentage, "%", "")),  # Remove % symbol
+    percentage = percentage / 100  # Convert to decimal (e.g., 19.07% → 0.1907)
+  )
+
+# Ensure no NA or Inf values
+state_data <- state_data %>%
+  mutate(
+    total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants),
+    percentage = ifelse(is.na(percentage) | is.infinite(percentage), 0, percentage)
+  )
+
+# Load US map data
+us_states <- map_data("state")
+
+# Convert state names to lowercase for merging
+state_data$state <- tolower(state_data$state)
+
+# Merge state-level data with map data
+us_map <- left_join(us_states, state_data, by = c("region" = "state"))
+
+# Define a 100-color palette (White = Highest, Red = Lowest)
+color_palette <- colorRampPalette(c("white", "red"))(100)  # Opposite of before
+
+# Load city (AOR region) data from cbp_resp.csv
+df <- read_csv("cbp_resp.csv")
+
+# Aggregate city-level (AOR) data
+city_data <- df %>%
+  filter(!is.na(aor_abbv) & !is.na(encounter_count)) %>%
+  group_by(aor_abbv) %>%
+  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE)) %>%
+  ungroup()
+
+# Ensure no NA values in city data
+city_data <- city_data %>%
+  mutate(total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants))
+
+# Define maximum bubble size relative to states
+max_state_immigrants <- max(us_map$total_immigrants, na.rm = TRUE)
+max_city_immigrants <- max(city_data$total_immigrants, na.rm = TRUE)
+
+# Prevent division by zero error
+if (max_city_immigrants == 0) max_city_immigrants <- 1
+
+# Scale bubble sizes relative to states
+city_data <- city_data %>%
+  mutate(size = (total_immigrants / max_city_immigrants) * (max_state_immigrants / 10))
+
+# Temporary fix: Assign random x and y values (should be replaced with real city locations)
+set.seed(123)  # Ensure reproducibility
+city_data$x <- runif(nrow(city_data), -125, -66)  # Longitude (USA range)
+city_data$y <- runif(nrow(city_data), 25, 49)     # Latitude (USA range)
+
+# Shiny UI
+ui <- fluidPage(
+  titlePanel("U.S. Immigration Maps (2021-2024)"),
+  tabsetPanel(
+    
+    # First Tab: State-Level Choropleth Map
+    tabPanel("State-Level Immigration",
+             sidebarLayout(
+               sidebarPanel(
+                 helpText("Hover over a state to see immigration details. 
+                          Darker red means fewer immigrants, white means the most.")
+               ),
+               mainPanel(
+                 plotlyOutput("stateMap", height = "700px")
+               )
+             )
+    ),
+    
+    # Second Tab: City-Level Bubble Map
+    tabPanel("City-Level Immigration",
+             sidebarLayout(
+               sidebarPanel(
+                 helpText("Bubble size represents the number of immigrants per city (AOR region).")
+               ),
+               mainPanel(
+                 plotlyOutput("cityMap", height = "700px")
+               )
+             )
+    )
+  )
+)
+
+# Shiny Server
+server <- function(input, output) {
+  
+  # State-Level Map
+  output$stateMap <- renderPlotly({
+    
+    p1 <- ggplot(us_map, aes(
+      x = long, y = lat, group = group, fill = percentage,
+      text = paste(
+        "State: ", region, "<br>",
+        "Total Immigrants: ", scales::comma(total_immigrants), "<br>",
+        "Percentage of Total: ", round(percentage * 100, 2), "%"  # Convert back to % format for display
+      )
+    )) +
+      geom_polygon(color = "black") +
+      scale_fill_gradientn(
+        colors = color_palette, 
+        name = "Immigrant Share (%)",
+        breaks = seq(min(us_map$percentage, na.rm = TRUE), 
+                     max(us_map$percentage, na.rm = TRUE), length.out = 10),
+        labels = function(x) paste0(round(x * 100, 2), "%"),
+        na.value = "gray90"
+      ) +
+      labs(title = "State-Level Immigration Intensity (2021-2024)",
+           subtitle = "Shading represents total immigrants in each state",
+           x = "", y = "",
+           caption = "Source: U.S. Customs and Border Patrol") +
+      theme_minimal() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+    
+    ggplotly(p1, tooltip = "text") %>%
+      layout(
+        geo = list(
+          scope = "usa",
+          showframe = FALSE,
+          showcoastlines = TRUE,
+          projection = list(type = "albers usa")
+        )
+      )
+  })
+  
+  # City-Level Bubble Map
+  output$cityMap <- renderPlotly({
+    
+    p2 <- ggplot() +
+      borders("state", colour = "gray50", fill = "gray90") +  # State borders in the background
+      geom_point(data = city_data, aes(
+        x = x, y = y,
+        size = size, text = paste(
+          "City/AOR: ", aor_abbv, "<br>",
+          "Total Immigrants: ", scales::comma(total_immigrants)
+        )
+      ), color = "blue", alpha = 0.6) +
+      scale_size_continuous(range = c(2, 10), name = "City Immigration") +  # Proper scaling
+      labs(title = "City-Level Immigration Intensity (2021-2024)",
+           subtitle = "Bubble size represents total immigrants per city",
+           x = "", y = "",
+           caption = "Source: U.S. Customs and Border Patrol") +
+      theme_minimal() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+    
+    ggplotly(p2, tooltip = "text")
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
 
 
 
