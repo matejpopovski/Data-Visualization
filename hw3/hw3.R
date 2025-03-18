@@ -48,8 +48,8 @@ ui <- fluidPage(
     # Sidebar panel with dropdown input
     sidebarPanel(
       selectInput("selected_demo", "Choose a Demographic:", 
-                  choices = unique(df$demographic), 
-                  selected = unique(df$demographic)[1])
+                  choices = c("All Demographics", unique(df$demographic)), 
+                  selected = "All Demographics")
     ),
     
     # Main panel with plot
@@ -63,9 +63,14 @@ server <- function(input, output) {
   
   # Reactive filtered data based on selected demographic
   filtered_data <- reactive({
-    df %>%
-      filter(demographic == input$selected_demo) %>%
-      count(date, wt = encounter_count, name = "total_encounters")
+    if (input$selected_demo == "All Demographics") {
+      df %>%
+        count(date, wt = encounter_count, name = "total_encounters")
+    } else {
+      df %>%
+        filter(demographic == input$selected_demo) %>%
+        count(date, wt = encounter_count, name = "total_encounters")
+    }
   })
   
   # Render plot
@@ -118,6 +123,7 @@ server <- function(input, output) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+
 
 ### ----------
 
@@ -331,8 +337,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 
-## -----
-
+## ----- 3
 
 
 # Load necessary libraries
@@ -377,64 +382,16 @@ us_map <- left_join(us_states, state_data, by = c("region" = "state"))
 # Define a 100-color palette (White = Highest, Red = Lowest)
 color_palette <- colorRampPalette(c("white", "red"))(100)  # Opposite of before
 
-# Load city (AOR region) data from cbp_resp.csv
-df <- read_csv("cbp_resp.csv")
-
-# Aggregate city-level (AOR) data
-city_data <- df %>%
-  filter(!is.na(aor_abbv) & !is.na(encounter_count)) %>%
-  group_by(aor_abbv) %>%
-  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE)) %>%
-  ungroup()
-
-# Ensure no NA values in city data
-city_data <- city_data %>%
-  mutate(total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants))
-
-# Define maximum bubble size relative to states
-max_state_immigrants <- max(us_map$total_immigrants, na.rm = TRUE)
-max_city_immigrants <- max(city_data$total_immigrants, na.rm = TRUE)
-
-# Prevent division by zero error
-if (max_city_immigrants == 0) max_city_immigrants <- 1
-
-# Scale bubble sizes relative to states
-city_data <- city_data %>%
-  mutate(size = (total_immigrants / max_city_immigrants) * (max_state_immigrants / 10))
-
-# Temporary fix: Assign random x and y values (should be replaced with real city locations)
-set.seed(123)  # Ensure reproducibility
-city_data$x <- runif(nrow(city_data), -125, -66)  # Longitude (USA range)
-city_data$y <- runif(nrow(city_data), 25, 49)     # Latitude (USA range)
-
 # Shiny UI
 ui <- fluidPage(
-  titlePanel("U.S. Immigration Maps (2021-2024)"),
-  tabsetPanel(
-    
-    # First Tab: State-Level Choropleth Map
-    tabPanel("State-Level Immigration",
-             sidebarLayout(
-               sidebarPanel(
-                 helpText("Hover over a state to see immigration details. 
-                          Darker red means fewer immigrants, white means the most.")
-               ),
-               mainPanel(
-                 plotlyOutput("stateMap", height = "700px")
-               )
-             )
+  titlePanel("U.S. Immigration Map (2021-2024)"),
+  sidebarLayout(
+    sidebarPanel(
+      helpText("Hover over a state to see immigration details. 
+               Darker red means fewer immigrants, white means the most.")
     ),
-    
-    # Second Tab: City-Level Bubble Map
-    tabPanel("City-Level Immigration",
-             sidebarLayout(
-               sidebarPanel(
-                 helpText("Bubble size represents the number of immigrants per city (AOR region).")
-               ),
-               mainPanel(
-                 plotlyOutput("cityMap", height = "700px")
-               )
-             )
+    mainPanel(
+      plotlyOutput("stateMap", height = "700px")
     )
   )
 )
@@ -478,29 +435,6 @@ server <- function(input, output) {
           projection = list(type = "albers usa")
         )
       )
-  })
-  
-  # City-Level Bubble Map
-  output$cityMap <- renderPlotly({
-    
-    p2 <- ggplot() +
-      borders("state", colour = "gray50", fill = "gray90") +  # State borders in the background
-      geom_point(data = city_data, aes(
-        x = x, y = y,
-        size = size, text = paste(
-          "City/AOR: ", aor_abbv, "<br>",
-          "Total Immigrants: ", scales::comma(total_immigrants)
-        )
-      ), color = "blue", alpha = 0.6) +
-      scale_size_continuous(range = c(2, 10), name = "City Immigration") +  # Proper scaling
-      labs(title = "City-Level Immigration Intensity (2021-2024)",
-           subtitle = "Bubble size represents total immigrants per city",
-           x = "", y = "",
-           caption = "Source: U.S. Customs and Border Patrol") +
-      theme_minimal() +
-      theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
-    
-    ggplotly(p2, tooltip = "text")
   })
 }
 
