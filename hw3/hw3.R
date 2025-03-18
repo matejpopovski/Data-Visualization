@@ -127,7 +127,6 @@ shinyApp(ui = ui, server = server)
 
 # 2. World Map Shiny:
 
-
 # Load necessary libraries
 library(shiny)
 library(ggplot2)
@@ -228,7 +227,7 @@ shinyApp(ui = ui, server = server)
 
 
 
-##--- 3:
+## 3:
 
 
 # Load necessary libraries
@@ -333,7 +332,7 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 
 
-## ----- 3
+# 3. USA map immigrant density:
 
 
 # Load necessary libraries
