@@ -289,7 +289,7 @@ server <- function(input, output) {
       text = paste(
         "State: ", region, "<br>",
         "Total Immigrants: ", scales::comma(total_immigrants), "<br>",
-        "Percentage: ", round(percentage, 2), "%"
+        "Percentage of Total: ", round(percentage, 2), "%"
       )
     )) +
       geom_polygon(color = "black") +
@@ -321,7 +321,6 @@ server <- function(input, output) {
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
-
 
 
 
