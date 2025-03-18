@@ -225,62 +225,102 @@ shinyApp(ui = ui, server = server)
 
 
 
-##---
+##--- 3:
+
 
 # Load necessary libraries
+library(shiny)
 library(ggplot2)
 library(dplyr)
 library(readr)
 library(maps)
+library(RColorBrewer)
+library(plotly)
 
-# Load dataset
-df <- read_csv("cbp_resp.csv")
+# Load state-level immigration data
+state_data <- read_csv("per_state.csv")
 
-# Aggregate data: total encounters by land border region
-border_aggregated <- df %>%
-  filter(!is.na(land_border_region) & !is.na(encounter_count)) %>%
-  group_by(land_border_region) %>%
-  summarise(total_immigrants = sum(encounter_count, na.rm = TRUE))
+# Rename columns for consistency
+colnames(state_data) <- c("state", "total_immigrants", "percentage")
 
-# Print to check border names
-print(border_aggregated)
+# Ensure no NA values in state data
+state_data <- state_data %>%
+  mutate(total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants),
+         percentage = ifelse(is.na(percentage), 0, percentage))
 
-# Load U.S. state map data
-us_map <- map_data("state")
+# Load US map data
+us_states <- map_data("state")
 
-# Manually map border regions to corresponding states (approximate)
-border_state_map <- data.frame(
-  land_border_region = c("Northern Land Border", "Southern Land Border"),
-  state = c("montana", "texas")  # Main representative state
+# Convert state names to lowercase for merging
+state_data$state <- tolower(state_data$state)
+
+# Merge state-level data with map data
+us_map <- left_join(us_states, state_data, by = c("region" = "state"))
+
+# Ensure missing values (NA) are set to 0 for visualization
+us_map$total_immigrants[is.na(us_map$total_immigrants)] <- 0
+us_map$percentage[is.na(us_map$percentage)] <- 0
+
+# Define a custom 10-color palette (red = most immigrants, white = least)
+color_palette <- rev(colorRampPalette(c("red", "white"))(10))
+
+# Shiny UI
+ui <- fluidPage(
+  titlePanel("U.S. Immigration Map (2021-2024)"),
+  sidebarLayout(
+    sidebarPanel(
+      helpText("Hover over a state to see immigration details. 
+               Darker red means more immigrants, lighter means fewer.")
+    ),
+    mainPanel(
+      plotlyOutput("stateMap", height = "700px")
+    )
+  )
 )
 
-# Merge aggregated data with state-level mapping
-border_data_merged <- left_join(border_aggregated, border_state_map, by = "land_border_region")
+# Shiny Server
+server <- function(input, output) {
+  
+  # State-Level Map
+  output$stateMap <- renderPlotly({
+    
+    p <- ggplot(us_map, aes(
+      x = long, y = lat, group = group, fill = percentage,
+      text = paste(
+        "State: ", region, "<br>",
+        "Total Immigrants: ", scales::comma(total_immigrants), "<br>",
+        "Percentage: ", round(percentage, 2), "%"
+      )
+    )) +
+      geom_polygon(color = "black") +
+      scale_fill_gradientn(
+        colors = color_palette, 
+        name = "Immigrant Share (%)",
+        breaks = seq(0, max(us_map$percentage, na.rm = TRUE), length.out = 10),
+        labels = function(x) paste0(round(x, 1), "%"),
+        na.value = "white"
+      ) +
+      labs(title = "State-Level Immigration Intensity (2021-2024)",
+           subtitle = "Shading represents total immigrants in each state",
+           x = "", y = "",
+           caption = "Source: U.S. Customs and Border Patrol") +
+      theme_minimal() +
+      theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(
+        geo = list(
+          scope = "usa",
+          showframe = FALSE,
+          showcoastlines = TRUE,
+          projection = list(type = "albers usa")
+        )
+      )
+  })
+}
 
-# Merge with U.S. map data
-us_map$region <- as.character(us_map$region)  # Ensure regions match
-map_data_merged <- left_join(us_map, border_data_merged, by = c("region" = "state"))
-
-# Replace NA values with 0 for missing regions
-map_data_merged$total_immigrants[is.na(map_data_merged$total_immigrants)] <- 0
-
-# Apply log scale to encounters for better contrast
-map_data_merged$log_immigrants <- log10(map_data_merged$total_immigrants + 1)
-
-# Create the U.S. border map
-ggplot(map_data_merged, aes(x = long, y = lat, group = group, fill = log_immigrants)) +
-  geom_polygon(color = "black") +
-  scale_fill_gradient(low = "lightblue", high = "darkred", name = "Log Immigrants") +  # Log scale for better contrast
-  labs(title = "Illegal Immigrant Entry Points in the U.S.",
-       subtitle = "Shading represents the number of encounters at different borders (Log Scale)",
-       x = "", y = "") +
-  theme_minimal() +
-  theme(axis.text = element_blank(), axis.ticks = element_blank(), panel.grid = element_blank())
-
-# ---
-
-
-
+# Run the Shiny app
+shinyApp(ui = ui, server = server)
 
 
 
