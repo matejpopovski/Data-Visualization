@@ -236,6 +236,7 @@ library(readr)
 library(maps)
 library(RColorBrewer)
 library(plotly)
+library(stringr)  # For string manipulation
 
 # Load state-level immigration data
 state_data <- read_csv("per_state.csv")
@@ -243,10 +244,14 @@ state_data <- read_csv("per_state.csv")
 # Rename columns for consistency
 colnames(state_data) <- c("state", "total_immigrants", "percentage")
 
-# Ensure percentage is numeric (floating-point values)
-state_data$percentage <- as.numeric(state_data$percentage)
+# Convert 'percentage' column: Remove '%' and convert to numeric
+state_data <- state_data %>%
+  mutate(
+    percentage = as.numeric(str_replace(percentage, "%", "")),  # Remove % symbol
+    percentage = percentage / 100  # Convert to decimal (e.g., 19.07% → 0.1907)
+  )
 
-# Replace NA or Inf values with 0 (to prevent scale_fill_gradientn errors)
+# Ensure no NA or Inf values
 state_data <- state_data %>%
   mutate(
     total_immigrants = ifelse(is.na(total_immigrants), 0, total_immigrants),
@@ -290,7 +295,7 @@ server <- function(input, output) {
       text = paste(
         "State: ", region, "<br>",
         "Total Immigrants: ", scales::comma(total_immigrants), "<br>",
-        "Percentage of Total: ", round(percentage, 2), "%"
+        "Percentage of Total: ", round(percentage * 100, 2), "%"  # Convert back to % format for display
       )
     )) +
       geom_polygon(color = "black") +
@@ -299,7 +304,7 @@ server <- function(input, output) {
         name = "Immigrant Share (%)",
         breaks = seq(min(us_map$percentage, na.rm = TRUE), 
                      max(us_map$percentage, na.rm = TRUE), length.out = 10),
-        labels = function(x) paste0(round(x, 2), "%"),
+        labels = function(x) paste0(round(x * 100, 2), "%"),  # Convert back to display %
         na.value = "white"
       ) +
       labs(title = "State-Level Immigration Intensity (2021-2024)",
