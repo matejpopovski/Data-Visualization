@@ -154,7 +154,7 @@ ggraph(G, layout = "fr") +  # Fruchterman-Reingold layout for clarity
 
 ```
 
-adj matrix
+b.adj matrix
 ```{r}
 library(igraph)
 
