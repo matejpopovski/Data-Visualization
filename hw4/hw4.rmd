@@ -314,6 +314,10 @@ ggplot(pca_loadings %>% filter(component %in% paste0("PC", 1:6)),
 
 ```
 
+PC1 appears to separate foods based on water vs. fat content: foods with high PC1 have more fat and calories, while low PC1 is associated with higher water content.
+PC2 differentiates protein- and mineral-rich foods (e.g., dairy, meat) from sugar- or carb-heavy ones (e.g., fruits, snacks).
+I would expect meats and dairy to have high PC2 scores, and sweets or juices to have low PC2.
+
 c.
 ```{r pca-part-c-final-fixed, message=FALSE, warning=FALSE}
 # Get PCA scores
@@ -335,8 +339,40 @@ avg_pc2_by_group
 
 ```
 
+d.
+```{r pca-part-d, message=FALSE, warning=FALSE}
+library(forcats)
 
+# Use PC scores and join group column (already done in part c)
+pca_scores_with_group <- pca_scores %>%
+  mutate(group = nutrients$group)
 
+# Reorder group factor based on average PC2
+group_order <- pca_scores_with_group %>%
+  group_by(group) %>%
+  summarize(avg_pc2 = mean(PC2, na.rm = TRUE)) %>%
+  arrange(desc(avg_pc2)) %>%
+  pull(group)
+
+# Apply order to facet variable
+pca_scores_with_group <- pca_scores_with_group %>%
+  mutate(group = factor(group, levels = group_order))
+
+# Plot PC1 vs PC2, faceted by group (ordered)
+ggplot(pca_scores_with_group, aes(x = PC1, y = PC2)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  facet_wrap(~ group, scales = "free") +
+  labs(
+    title = "PCA Scores by Food Group (Faceted by Group, Ordered by PC2)",
+    x = "PC1",
+    y = "PC2"
+  ) +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 9))
+
+```
+
+The groups with high PC2 values in part (c) — such as Fats and Oils and Meats — appear higher in the PC2 dimension in the plots, confirming our interpretation in part (b). Similarly, groups like Sweets and Cereals show lower PC2 scores, suggesting higher sugar or carb content. This visual comparison supports our PCA findings.
 
 
 
