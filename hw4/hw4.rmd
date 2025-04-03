@@ -21,6 +21,21 @@ install.packages(c(
 ))
 ```
 
+> Code Diary
+
+a. What was your programming environment/workflow?
+I primarily worked in RStudio using an RMarkdown notebook. This allowed me to write code, test it, and write explanations inline, which helped keep everything organized. I also used the built-in plot viewer to check visual outputs quickly.
+
+b. What techniques did you use to plan your code?
+Before writing full code, I often sketched out what each chunk needed to do in the comments — kind of like inline pseudocode. For multi-step problems (like PCA or clustering), I broke them down into steps like "prep data," "run analysis," and "visualize." I also asked ChatGPT for help debugging and structuring some complex steps.
+
+c. What kinds of bugs did you encounter? What steps did you take to resolve them?
+I ran into errors with variable names after cleaning column names using janitor::clean_names(), which changed column references unexpectedly. I also had issues with update_role() in tidymodels when columns didn’t exist. To fix these, I printed colnames() frequently to double-check column names and used mutate() instead of bind_cols() when merging data. I also carefully read error messages and Googled specific errors when needed.
+
+d. If you were starting the programming task again, would you do anything differently?
+Yes — I would start by printing and checking column names earlier in the process to avoid errors later. I’d also write a small test plot or two early in a problem to confirm the structure before building the full visualization. Lastly, I’d rely a little less on trial-and-error and instead consult documentation sooner when trying new functions.
+
+
 > Geospatial Datasets 
 
 a. NYC Building Footprints
