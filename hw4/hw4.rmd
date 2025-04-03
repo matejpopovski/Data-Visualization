@@ -392,9 +392,69 @@ The groups with high PC2 values in part (c) — such as Fats and Oils and Meats 
 
 > Concept Map 
 
-a. 
+Concept Map for Week 8: Networks and Visualization Strategies
 
+Nodes (Concepts):
 
+- Graphs
+- Vertices (Nodes)
+- Edges (Links)
+- Directed vs Undirected Edges
+- Node Attributes
+- Edge Attributes
+- Tasks on Networks
+- Network Examples
+- Trees
+- Node-Link Diagrams
+- Layout Algorithms
+- Adjacency Matrix
+- Edge Bundling
+- Enclosure (Containment)
+- Circle Packing
+- Treemaps
+- Hierarchical Networks
+
+Edges (Connections): 
+
+Graphs → Vertices: Every graph is made of nodes (or vertices) that represent entities.
+
+Graphs → Edges: Edges represent relationships between nodes in the graph.
+
+Edges → Directed vs Undirected: Edge directionality defines whether relationships have a flow or are symmetric.
+
+Vertices → Node Attributes: Nodes can have properties like size, label, or group (e.g., file size, person name).
+
+Edges → Edge Attributes: Edges can have weights (e.g., strength of connection, duration of contact).
+
+Graphs → Tasks on Networks: Common tasks include identifying clusters, tracing paths, and finding key nodes.
+
+Tasks on Networks → Network Examples: Examples like internet graphs, evolutionary trees, and disease networks highlight these tasks.
+
+Graphs → Trees: Trees are a special case of graphs with hierarchical structure and no cycles.
+
+Graphs → Node-Link Diagrams: A common way to visualize graphs using spatial layout and connecting lines.
+
+Node-Link Diagrams → Layout Algorithms: Node positions are computed using layouts like force-directed (e.g., Kamada-Kawai).
+
+Graphs → Adjacency Matrix: An alternative encoding of networks, useful for large/dense graphs.
+
+Adjacency Matrix → Edge Attributes: Edge presence and weight can be encoded as matrix cell color/opacity.
+
+Adjacency Matrix → Layout Algorithms: Sorting rows/columns influences interpretability.
+
+Graphs → Enclosure: Used when nodes have nested/hierarchical relationships.
+
+Enclosure → Circle Packing: Shows hierarchy by nesting nodes inside others.
+
+Enclosure → Treemaps: Uses rectangular containment to visualize size/importance.
+
+Node-Link Diagrams ↔ Adjacency Matrix: Complementary strategies—node-link is better for local paths, adjacency matrices for global structure.
+
+Enclosure → Hierarchical Networks: Containment helps visualize nested communities or tree structures.
+
+```{r fig.align='center', echo=FALSE, out.width="70%"}
+knitr::include_graphics("Screenshot2.png")
+```
 
 
 
