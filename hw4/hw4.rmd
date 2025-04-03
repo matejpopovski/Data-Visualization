@@ -60,6 +60,21 @@ a. Graphical encoding refers to the way data values are visually represented in 
 
 Example: In a line plot, time might be encoded on the x-axis (position), and unemployment rate on the y-axis. Each line might be colored by year — color is the graphical encoding used to distinguish time series.
 
+b. Approach 1: Small Multiples of Line Charts
+This approach uses individual line charts to display unemployment trends over time for a selected set of counties. A major strength of this method is its clarity in tracking temporal trends for each county. Viewers can easily compare how unemployment fluctuates month-by-month and year-by-year within a single county. The use of color to encode the year helps in identifying changes across time. Additionally, the small multiples format prevents visual clutter by isolating each county into its own subplot, making patterns like the unemployment spike in 2020 very easy to spot.
+
+However, a significant weakness of this approach is its limited geographic coverage. It only includes a small, predefined subset of counties, so it doesn't offer a comprehensive view of unemployment across the entire state. This restricts its usefulness for exploring regional or statewide patterns. Moreover, if more counties were added, the layout could become visually overwhelming or difficult to navigate. Also, comparing trends between counties is less straightforward since each is plotted separately with potentially varying scales or emphasis.
+
+Approach 2: Heatmap of Counties Over Time
+The second approach displays unemployment using a heatmap, where each row represents a county and each column represents a month across multiple years. The primary strength of this method is that it allows users to quickly scan for patterns across space and time. It's especially powerful for detecting high-level trends, such as which counties had persistently high or low unemployment or how widespread the unemployment spike in 2020 was. It supports both vertical (county-wise) and horizontal (time-wise) comparisons at a glance.
+
+On the downside, the heatmap format sacrifices granular interpretability for density. It's often difficult to determine exact unemployment values due to reliance on color gradients, and slight differences in unemployment rates may not be easily distinguished. Also, color encodings (like square-root scaled shading) can be unintuitive or misleading without careful labeling. For someone unfamiliar with the color mapping, it can be hard to grasp the magnitude of unemployment change across time or counties without cross-referencing the color legend repeatedly.
+
+Approach 3: Choropleth Maps by Year
+This visualization shows choropleth maps of California by year, with counties shaded according to their maximum unemployment rate. The greatest strength of this approach is its ability to clearly convey geographic patterns. It's ideal for visualizing spatial clusters or regional differences — for instance, how certain inland counties experience much higher unemployment than coastal ones. Faceting by year allows viewers to observe how these geographic patterns shift over time, giving a strong sense of how widespread or localized unemployment issues are.
+
+The main weakness of this method is its lack of temporal granularity. Because it aggregates each year to a single “maximum unemployment” value, it hides within-year variation, such as seasonal unemployment spikes or short-term shocks. Additionally, side-by-side maps can become difficult to compare accurately due to subtle shading differences, especially if color bins are too wide or too narrow. Without interactive tools, it's also harder to compare specific values between years or counties unless clearly labeled.
+
 
 
 
