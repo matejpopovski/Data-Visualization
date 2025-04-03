@@ -181,6 +181,57 @@ c. The adjacency matrix would show three dense diagonal blocks representing tigh
 knitr::include_graphics("Screenshot1.png")
 ```
 
+>
+
+
+```{r beijing-cluster, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(cluster)
+library(ggplot2)
+
+# Load data
+beijing <- read_csv("beijing.csv")
+
+# Scale pollution, temp, and windspeed hourly columns
+data_scaled <- beijing %>%
+  select(matches("pollution_\\d+|temp_\\d+|wndspd_\\d+")) %>%
+  scale()
+
+# Hierarchical clustering
+d <- dist(data_scaled)
+hc <- hclust(d)
+beijing$cluster <- cutree(hc, k = 10)
+
+# Long format for ribbon plot
+beijing_long <- beijing %>%
+  select(cluster, matches("pollution_\\d+|temp_\\d+|wndspd_\\d+")) %>%
+  pivot_longer(
+    cols = -cluster,
+    names_to = c("type", "hour"),
+    names_pattern = "(.*)_(\\d+)",
+    values_to = "value"
+  ) %>%
+  mutate(hour = as.numeric(hour))
+
+# Compute quantiles per hour, type, and cluster
+cluster_summary <- beijing_long %>%
+  group_by(cluster, type, hour) %>%
+  summarise(
+    q25 = quantile(value, 0.25),
+    q50 = quantile(value, 0.50),
+    q75 = quantile(value, 0.75),
+    .groups = "drop"
+  )
+
+# Plot ribbon chart
+ggplot(cluster_summary, aes(x = hour)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75, fill = as.factor(cluster)), alpha = 0.3) +
+  geom_line(aes(y = q50, color = as.factor(cluster))) +
+  facet_wrap(~type, scales = "free_y") +
+  labs(title = "Clustered Daily Air Pollution Patterns",
+       x = "Hour of Day", y = "Value",
+       fill = "Cluster", color = "Cluster") +
+  theme_minimal()
 
 
 
