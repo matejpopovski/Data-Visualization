@@ -54,9 +54,11 @@ ggplot(data = wi_ev$osm_points) +
 ```
 
 
+> CalFresh Comparison 
 
+a. Graphical encoding refers to the way data values are visually represented in a plot or chart using properties like position, color, size, shape, or angle. These encodings help viewers interpret patterns, trends, and comparisons in the data.
 
-
+Example: In a line plot, time might be encoded on the x-axis (position), and unemployment rate on the y-axis. Each line might be colored by year — color is the graphical encoding used to distinguish time series.
 
 
 
