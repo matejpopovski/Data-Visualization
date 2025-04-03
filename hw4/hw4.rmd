@@ -1,0 +1,627 @@
+---
+title: "hw4"
+output: html_document
+author: "Matej Popovski"
+date: "`r Sys.Date()`"
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
+```
+
+
+```{r}
+#install.packages("nycflights13")
+library(nycflights13)
+library(dplyr)
+```
+
+```{r}
+# [NYC Flights] a)
+flights_speed <- flights |> 
+  select(carrier, air_time, distance) |> 
+  mutate(speed = distance / (air_time / 60))  # Convert air_time to hours
+
+head(flights_speed)  # Check the first few rows
+
+```
+
+
+```{r}
+# [NYC Flights] b)
+library(ggplot2)
+
+ggplot(flights_speed, aes(x = carrier, y = speed)) +
+  geom_boxplot() +
+  labs(title = "Variation in Flight Speed Across Carriers",
+       x = "Carrier",
+       y = "Speed (miles per hour)") +
+  theme_minimal()
+
+```
+
+```{r}
+# Sort carriers by median speed
+flights_speed <- flights_speed %>%
+  mutate(carrier = reorder(carrier, speed, median, na.rm = TRUE))
+
+ggplot(flights_speed, aes(x = carrier, y = speed)) +
+  geom_boxplot() +
+  labs(title = "Variation in Flight Speed Across Carriers",
+       x = "Carrier",
+       y = "Speed (miles per hour)") +
+  theme_minimal()
+```
+
+> Looking at the first plot I cannot see large visible variation in the flight speeds accross carriers. However, if we sort them (second plot), the variation becomes visiible. 
+
+
+```{r}
+# [London Olympics] a)
+
+library(tidyverse)
+
+olympics <- read_csv("https://uwmadison.box.com/shared/static/rzw8h2x6dp5693gdbpgxaf2koqijo12l.csv")
+
+# Compute average age per sport
+age_summary <- olympics |> 
+  group_by(Sport) |> 
+  summarize(avg_age = mean(Age, na.rm = TRUE))
+
+ggplot(olympics, aes(x = Sport, y = Age)) +
+  geom_jitter(alpha = 0.3, color = "blue", width = 0.2) +  # Individual ages
+  geom_point(data = age_summary, aes(x = Sport, y = avg_age), color = "red", size = 3) +  # Average age
+  coord_flip() +  # Flip for better readability
+  labs(title = "Athlete Ages Across Sports in the 2012 London Olympics",
+       x = "Sport",
+       y = "Age") +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank())  # Remove minor horizontal lines
+
+```
+
+```{r}
+# [London Olympics] b)
+
+sorted_sports <- age_summary |> 
+  arrange(avg_age)
+
+print(sorted_sports)
+
+```
+
+```{r}
+# Not required but for better understanding:
+
+ggplot(sorted_sports, aes(x = reorder(Sport, avg_age), y = avg_age)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Average Age of Athletes by Sport",
+       x = "Sport",
+       y = "Average Age") +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank())  # Remove minor horizontal lines
+
+```
+
+> Question: Do male and female athletes have different average ages in certain sports? Why?
+
+```{r}
+# [London Olympics] c)
+
+# Compute average age by Sport and Gender
+age_gender_summary <- olympics |> 
+  group_by(Sport, Sex) |> 
+  summarize(avg_age = mean(Age, na.rm = TRUE))
+
+ggplot(age_gender_summary, aes(x = reorder(Sport, avg_age), y = avg_age, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Comparison of Avg Age Between Male and Female Athletes by Sport",
+       x = "Sport",
+       y = "Average Age",
+       fill = "Gender") +
+  theme_minimal() +
+  theme(
+        panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+        panel.grid.minor.y = element_blank()) 
+
+# I did not remove the white gaps between the sports because we compare males and females in one sport.
+
+```
+
+> Some sports may require more experience (e.g., equestrian), while others favor younger athletes (e.g., gymnastics).
+
+> I can see bigger difference in the average age in equestrian and cycling - mountain bike, cycling - road, cycling track, and the reason behind that might be the differences in peak performance age. Another reason might be career longevity & injury risks. However, overall there are no major differences in the average ages between males and females in different sports.
+
+
+```{r}
+# [Pokemon] a)
+
+pokemon <- read_csv("https://uwmadison.box.com/shared/static/hf5cmx3ew3ch0v6t0c2x56838er1lt2c.csv")
+
+# Create the attack-to-defense ratio column
+pokemon <- pokemon %>%
+  mutate(attack_defense_ratio = Attack / Defense)
+
+head(pokemon)
+```
+
+```{r}
+# [Pokemon] b)
+
+median_ratios <- pokemon %>%
+  group_by(type_1) %>%
+  summarize(median_ratio = median(attack_defense_ratio, na.rm = TRUE)) %>%
+  arrange(desc(median_ratio))
+
+head(median_ratios)
+```
+
+```{r}
+# [Pokemon] c)
+
+# Convert type_1 to a factor with levels ordered by median ratio
+pokemon <- pokemon %>%
+  mutate(type_1 = factor(type_1, levels = median_ratios$type_1))
+
+# Plot attack vs defense with faceting by type_1
+ggplot(pokemon, aes(x = Defense, y = Attack, color = type_1)) +
+  geom_point(alpha = 0.6) +
+  facet_wrap(~type_1, scales = "free") +
+  theme_minimal() +
+  labs(title = "Attack vs. Defense by Pokemon Type",
+       x = "Defense",
+       y = "Attack") +
+  theme(legend.position = "none")
+
+```
+
+# [Pokemon] d)
+
+A dynamic visualization would enable users to interact with the data to filter, highlight, or compare Pokémon types.
+
+Potential Questions:
+- How do Pokémon types compare in attack-to-defense ratio? Users can select a type from a dropdown to highlight it.
+- What are the strongest defensive and offensive Pokémon? Sliders can filter by attack or defense stats.
+- How do Legendary Pokémon compare to non-Legendary ones? A toggle can highlight only Legendary Pokémon.
+
+Structure of Interaction:
+
+Dropdown Menu: Highlight a specific Pokémon type.
+Sliders: Filter by Attack, Defense, or attack-to-defense ratio.
+Hover Tooltips: Display stats (e.g., name, attack, defense) on hover.
+Checkbox Toggle: Compare Legendary vs. non-Legendary Pokémon.
+
+How the Display Updates:
+- Selecting a Pokémon type highlights it, with others becoming transparent.
+- Sliders dynamically filter Pokémon based on the selected range.
+- The plot updates to highlight Legendary Pokémon when toggled.
+
+
+[Gene Expression Faceting]
+
+```{r}
+# [Gene Expression Faceting] a)
+
+library(readr)
+
+genes <- read_csv("https://uwmadison.box.com/shared/static/dwzchdtfca33r0f6i055k2d0939onnlv.csv")
+
+ggplot(genes, aes(x = time, y = log1p(value))) +
+  geom_point(alpha = 0.3, color = "black") +  # Semi-transparent black points
+  facet_wrap(~gene, nrow = 2, ncol = 4) +  # Ensuring correct facet arrangement
+  theme_minimal() +
+  labs(y = "log(1 + value)", x = "Time") +
+  theme(
+    strip.background = element_rect(fill = "grey80"),  # Matching facet header style
+    strip.text = element_text(face = "bold"),  # Making facet text bold
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    panel.grid.major = element_line(color = "grey90"),  # Light grey gridlines
+    panel.grid.minor = element_blank()  # Removing minor gridlines
+  )
+
+```
+
+[Gene Expression Faceting] b)
+
+Strength of Small Multiples:
+One major strength of using small multiples is that they allow for easy comparison across multiple categories (in this case, genes). Since each gene has its own separate panel, it becomes much simpler to observe patterns, trends, and differences without overlapping data points from other genes. This clarity makes it easier to identify trends and anomalies in gene expression over time.
+
+Weakness of Small Multiples:
+A notable weakness is that small multiples can become cluttered and difficult to interpret when dealing with a large number of categories. If too many genes were included, the individual panels would shrink, making it harder to discern patterns within each plot. Additionally, if the y-axes are not consistently scaled, comparing expression levels between genes might become misleading.
+
+
+```{r}
+# [Gene Expression Faceting] c)
+
+# Group by gene and rounded time, calculate mean expression value
+gene_groups <- genes %>%
+  group_by(gene, rounded_time = round(time, 2)) %>%
+  summarise(mean_value = mean(value), .groups = "drop")
+
+# Order genes by total expression (LEAST abundant first)
+gene_order <- gene_groups %>%
+  group_by(gene) %>%
+  summarise(total_expression = sum(mean_value)) %>%
+  arrange(total_expression) %>%  # Reverse the order
+  pull(gene)
+
+# Generate heatmap with wider aspect ratio
+ggplot(gene_groups, aes(x = rounded_time, y = factor(gene, levels = gene_order), fill = log1p(mean_value))) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "#1F77B4") +  # Ensure the correct blue gradient
+  theme_minimal(base_size = 14) +  
+  labs(y = "Gene (Sorted by Expression)", x = "Time (Rounded)", fill = "log(1 + mean_value)") +
+  theme(
+    axis.text.x = element_text(size = 12, face = "bold"),  
+    axis.text.y = element_text(size = 12, face = "bold"),
+    axis.title.x = element_text(size = 14, face = "bold"),
+    axis.title.y = element_text(size = 14, face = "bold"),
+    panel.grid.major = element_blank(),  
+    panel.grid.minor = element_blank(),
+    plot.margin = margin(10, 20, 10, 10)  # Adjust spacing if needed
+  ) 
+
+```
+
+[Gene Expression Faceting] d)
+
+To modify the small multiples plot from part (a) and overlay the smooth fitted curve, we will:
+
+- Load the fitted_values dataset and merge it with the original genes dataset.
+- Overlay a smooth fitted curve (mu) on top of the scatter points.
+- Ensure correct styling (matching red curve, transparency, facet grid layout).
+
+```{r}
+# Load fitted values (smooth curve predictions)
+fitted_values <- read_csv("https://go.wisc.edu/x678hu")
+
+# Merge original data with fitted values
+merged_data <- genes %>%
+  left_join(fitted_values, by = c("gene", "time"))
+
+# Create small multiples plot with fitted curves
+ggplot() +
+  geom_point(data = genes, aes(x = time, y = log1p(value)), alpha = 0.3, color = "black") +  # Semi-transparent points
+  geom_line(data = fitted_values, aes(x = time, y = log1p(mu)), color = "darkred", size = 1.2) +  # Fitted smooth curves
+  facet_wrap(~gene, nrow = 2, ncol = 4) +  # Ensure correct facet arrangement
+  theme_minimal() +
+  labs(y = "log(1 + value)", x = "Time") +
+  theme(
+    strip.background = element_rect(fill = "grey80"),  # Matching facet header style
+    strip.text = element_text(face = "bold"),  # Making facet text bold
+    axis.title = element_text(face = "bold"),  # Bold axis labels
+    panel.grid.major = element_line(color = "grey90"),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Removing minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2)  # Adding a thin black border
+  )
+
+```
+
+How This Relates to the "Grammar of Graphics": 
+
+Layering:
+The geom_point() layer represents raw gene expression data.
+The geom_line() layer overlays the fitted curve in red.
+
+Aesthetic Mapping (aes()):
+The x-axis (time) and y-axis (log1p(value)) map the data points and fitted values.
+
+Faceting:
+facet_wrap(~gene) ensures each gene gets its own panel.
+
+Customization & Clarity:
+Color (black for raw points, darkred for fitted curve) enhances readability.
+Gridlines & Borders provide a polished appearance.
+
+
+[Visual Redesign] a)
+
+Here’s one of the visualizations I previously created, showing the yearly trends in "THREES Share" and "THREES FG%" for a dataset on shooting splits over several years in College Basketball (project from STAT 240).
+
+The first plot shows the Yearly Threes Share over time.
+The second plot shows the Yearly Threes Made percentage over time.
+
+```{r}
+# original code
+
+shoot = read_csv("./Shooting Splits.csv")
+
+mmdata = shoot %>%
+        filter(YEAR != 2020) %>%
+        rename(THREES_SPLIT = "THREES SHARE", MADE_THREES = "THREES FG%")
+mmdata = mmdata %>%
+       group_by(YEAR) %>%
+       mutate(YEARLY_THREES_SHARE = sum(THREES_SPLIT)/n(), YEARLY_THREES_MADE = sum(MADE_THREES)/n())
+
+ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_SHARE)) + 
+  geom_point() +
+  geom_smooth()
+
+ggplot(mmdata, aes(x = YEAR, y = YEARLY_THREES_MADE)) + 
+  geom_point() +
+  geom_smooth()
+
+```
+The data focuses on shooting performance, with a focus on the percentage of "threes" made and their share in a team’s performance each year. These are scatter plots with smoothing lines.
+
+
+[Visual Redesign] b) 
+
+Main Takeaways: Both plots show the trend of three-point share and shooting percentage over time. We can infer how the performance has fluctuated yearly. The smoother lines provide a clearer trend despite the variation in individual years.
+
+The Yearly Threes Share plot shows a general upward trend, implying that three-point shooting has become more prevalent over the years.
+The Yearly Threes Made plot shows fluctuations, with some years having a steep increase in shooting percentage, possibly pointing to specific player performance improvements.
+
+Intended Message Consistency: The plots communicate the message of how shooting trends have evolved over time. However, they could be made clearer to show year-on-year comparisons of these two metrics in a more comparative way.
+
+Hard-to-Highlight Comparisons: Comparing the two plots side-by-side is difficult when you want to see how the two metrics correlate. It would be better to merge the data for both aspects into a single visualization to compare the trends more easily.
+
+
+[Visual Redesign] c)  
+
+Legibility of the Original Visualization:
+
+Clarity of Data Points: While scatter plots can be useful, they may be difficult to read if there are too many overlapping points or if the trends aren’t clear enough. Here, the scatter points could be a bit noisy, making it harder to discern specific trends at a glance.
+
+Lack of Comparison: There are two separate plots that display different metrics (threes share and threes made), making it harder to compare them directly.
+
+Aesthetics: The use of scatter points and smoothing lines is fine, but it doesn’t fully highlight the correlation between the two metrics over the years. The two plots could be made more compact for easier comparison.
+
+
+[Visual Redesign] d)  
+
+Proposed Redesign:
+For the redesign, I would propose merging these two visuals into a single plot with both metrics combined and enhanced for legibility and clarity. Here’s how I would proceed with the redesign:
+
+Combine the Metrics into One Plot: Instead of showing two separate plots, I would create a line plot with two different colored lines (one for Yearly Threes Share and one for Yearly Threes Made) to allow for easier comparison.
+
+Legibility Improvements:
+
+Line Plot: Use lines instead of points for clearer trend visibility.
+Dual Y-Axes: If the scales for the two metrics differ significantly, using a dual y-axis could make the trends easier to compare while maintaining clarity.
+Color Coding: Use different colors to distinguish between the two metrics clearly (e.g., blue for threes share, orange for threes made).
+Annotations: Annotate key points where significant changes happen in the trends (e.g., sudden spikes in shooting performance) to give viewers key insights.
+
+```{r}
+ggplot(mmdata, aes(x = YEAR)) + 
+  geom_line(aes(y = YEARLY_THREES_SHARE, color = "Threes Share"), size = 1) +
+  geom_line(aes(y = YEARLY_THREES_MADE, color = "Threes Made"), size = 1) +
+  scale_color_manual(values = c("Threes Share" = "blue", "Threes Made" = "orange")) +
+  labs(title = "Comparison of Yearly Threes Share and Threes Made",
+       x = "Year",
+       y = "Percentage (%)",
+       color = "Metrics") +
+  theme_minimal() +
+  theme(legend.position = "bottom") 
+```
+
+Key Points in the New Design:
+
+Visual Tasks: The main visual tasks are to highlight the trend over time, compare the yearly performance of the two metrics, and easily spot trends and key points in the data.
+
+Trade-Offs: Using a dual line plot means sacrificing the individual point-level detail that the scatter plot provides. However, this trade-off enhances clarity in showing the overall trend and comparison between the two metrics.
+
+Legibility Improvements:
+
+Using line plots instead of scatter plots for smoother trend visualization.
+The addition of color and dual y-axes makes it easier to distinguish between the two metrics.
+The legend is moved to the bottom for clarity, making the plot less cluttered.
+
+
+
+[California Wildfire Alternatives] a)
+
+
+```{r}
+# Load data
+fires <- read_csv("https://uwmadison.box.com/shared/static/k5vvekf1bhh9e16qb9s66owygc70t7dm.csv") %>%
+  select(Name, Counties, year, day_of_year, AcresBurned, MajorIncident)
+
+# Order counties by total acres burned
+county_order <- fires %>%
+  group_by(Counties) %>%
+  summarise(total_burned = sum(AcresBurned, na.rm = TRUE)) %>%
+  arrange(total_burned) %>%
+  pull(Counties)
+
+# Create scatter plot with grey facet boxes
+ggplot(fires, aes(x = day_of_year, y = factor(Counties, levels = county_order), size = log1p(AcresBurned))) +
+  geom_point(color = "black", alpha = 0.7) +  # Ensure correct opacity and color
+  facet_wrap(~year, nrow = 1, scales = "free_x") +  # Facet by year with a single row
+  theme_minimal(base_size = 14) +  # Adjust text size for readability
+  labs(y = "County (Sorted by Acres Burned)", x = "Day of Year", size = "log(AcresBurned)") +
+  theme(
+    strip.background = element_rect(fill = "grey80", color = "black"),  # Grey background with black border
+    strip.text = element_text(size = 10, face = "bold", color = "black"),  # Bold black text inside the grey box
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1),  # Rotate x-axis labels to prevent overlap
+    axis.text.y = element_text(size = 8),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right",  # Position legend correctly
+    panel.grid.major = element_line(color = "grey85"),  # Light grey gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2)  # Add a black border around the plot
+  ) +
+  scale_size_continuous(range = c(1, 3))  # Ensure correct bubble scaling
+
+
+```
+
+Strengths of This Approach:
+
+- Great for identifying seasonal wildfire trends – By faceting by year and plotting wildfire events by day of the year, we can identify peak fire seasons and observe if they change over time.
+- Allows comparison between counties – Since counties are sorted by total acres burned, we can compare where the largest wildfires occurred each year.
+
+Weaknesses of This Approach:
+
+- Difficult to compare years directly – Since each year is in a separate facet, it's harder to track year-to-year trends in fire activity.
+- Overlapping points can obscure insights – Many fires occur on the same days, leading to overlap that may make it hard to distinguish between large and small fires.
+
+
+[California Wildfire Alternatives] b)
+
+```{r}
+
+# Create box plot with Major Incident color distinction
+ggplot(fires, aes(x = factor(year), y = log1p(AcresBurned), fill = MajorIncident)) +
+  geom_boxplot(outlier.shape = 21, outlier.color = "black", alpha = 0.7) +  # Ensure correct transparency and outliers
+  scale_fill_manual(values = c("TRUE" = "#E66101", "FALSE" = "#5EBC89")) +  # Color matching the original image
+  theme_minimal(base_size = 14) +  # Adjust text size for readability
+  labs(y = "log(AcresBurned)", x = "Year", fill = "Major Incident?") +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2),  # Add black border
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right"  # Ensure legend is placed correctly
+  )
+
+```
+
+Strengths of This Approach
+- Good for comparing wildfire severity across years – The boxplots summarize distributions of wildfire sizes each year, making it easy to see which years had more severe fires.
+- Highlights the impact of "Major Incidents" – The color coding allows for a quick visual differentiation between large-scale incidents and smaller fires.
+
+Weaknesses of This Approach
+- Does not show wildfire seasonality – Unlike Approach 1, this does not show when fires happened during the year.
+- Hard to see individual fires – Boxplots summarize data, so specific details about individual fires (such as location or exact timing) are lost.
+
+
+[California Wildfire Alternatives] c)
+
+```{r}
+top_fires <- fires %>%
+  arrange(desc(AcresBurned)) %>%
+  slice_head(n = 15)
+
+year_colors <- c(
+  "2013" = "#8DD3C7",
+  "2014" = "#FFFFB3",
+  "2015" = "#BEBADA",
+  "2016" = "#FB8072",
+  "2017" = "#80B1D3",
+  "2018" = "#FDB462",
+  "2019" = "#B3DE69"
+)
+
+# Bar chart of largest fires with correct colors and alignment
+ggplot(top_fires, aes(x = AcresBurned, y = reorder(Name, AcresBurned), fill = factor(year))) +
+  geom_col() +
+  scale_fill_manual(values = year_colors) +  # Apply correct colors
+  scale_x_continuous(expand = c(0, 0)) +  # **Fix bar alignment to start from zero**
+  theme_minimal(base_size = 14) +  
+  labs(y = "Fire", x = "Acres Burned", fill = "Year", title = "Fires with the Most Acres Burned") +
+  theme(
+    panel.grid.major.y = element_blank(),  # Remove major horizontal lines
+    panel.grid.minor.y = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1.2),  # Add black border
+    axis.title = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 10),
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.position = "right"  # Ensure legend is placed correctly
+  ) 
+
+
+```
+
+Strengths of This Approach
+- Best for identifying the largest individual wildfires – This visualization clearly shows which fires were the most severe and allows comparison across years.
+- Year-based color coding enhances readability – Using different colors for each year helps differentiate fire events across time.
+
+Weaknesses of This Approach
+- Not useful for comparing overall wildfire trends – This only shows the largest fires, so it doesn't provide insight into all fires or how fire severity changes over time.
+- Does not show fire locations or seasonality – Unlike the other approaches, this focuses only on total burned area, ignoring when or where the fires occurred.
+
+[California Wildfire Alternatives] d)
+
+I did it for all 3 plots.
+
+
+[Homelessness]
+
+```{r}
+#install.packages("magick")
+library(magick)
+
+# Load and display the image
+img <- image_read("screenshot1.png")
+print(img)
+```
+
+[Homelessness] a)
+
+The graph I chose is the last stage of the animation showing the movement of the homeless across The US.
+
+Underlying Data:
+
+The dataset behind this visualization likely contains rows representing individual relocations of homeless individuals. Each row might correspond to a single relocation event, and the columns could include:
+
+Name - Name of the homeless person
+Origin City – The city where the person was originally located.
+Destination City – The city where the person was relocated.
+Date of Relocation – The date when the relocation happened.
+Reason for Relocation – Possible reasons given for moving the individual.
+Who helped the homeless at the new destination.
+Cost of moving.
+
+
+[Homelessness] b)
+
+Data Types:
+Each column would have different data types.
+
+Categorical (Nominal):
+Name, Origin City, Destination City. Reason for Relocation – Categories such as "Reuniting with family," "Seeking a job,". Who helped the homeless.
+
+Numerical (Quantitative):
+Cost of moving.
+Other numerical data types can be produced by filtering and grouping actions.
+
+Date type - individual data type.
+
+
+[Homelessness] c)
+
+Visual Encodings:
+This visualization uses multiple encoding techniques.
+
+Map (Geospatial Encoding)
+
+Position (Latitude/Longitude): Each blue circle represents a destination city where homeless individuals were relocated in some period.
+Size (Area Encoding): The size of each circle represents the number of homeless people relocated to that city. Larger circles indicate more arrivals.
+Color (Red/Blue Contrast):
+Blue circles - Represent destinations where homeless individuals were moved.
+Red dots inside some blue circles - Possibly major sending cities or hubs.
+Bar Chart (Temporal Encoding)
+
+The bottom section contains a bar chart over time (2011–2017).
+X-Axis (Time Encoding): Represents months in each year from 2011 to 2017.
+Y-Axis (Count Encoding): The height of the bars represents the number of relocations per month/year.
+Color (Single-Hue Blue): The use of blue bars ensures consistency with the blue circles in the map.
+
+Legend and Annotations:
+A scale legend in the bottom left provides a reference for circle sizes.
+The large bold number "21,400" in the center reinforces the total number of relocations.
+
+
+[Homelessness] d)
+Multi-View Composition:
+Yes. This visualization uses multi-view composition by combining a geographic map and a time-series bar chart:
+
+The Map Shows where homeless individuals ended up (spatial trends).
+The Bar Chart Shows when relocations peaked (temporal trends).
+By integrating both spatial and temporal data, this visualization helps readers understand patterns of homeless relocation across the U.S.
+
+Final Thoughts
+This is a well-designed data visualization because: It effectively combines a geospatial and temporal view.
+It uses size, position, and color to emphasize key patterns.
+It allows readers to explore trends over both space and time.
+
