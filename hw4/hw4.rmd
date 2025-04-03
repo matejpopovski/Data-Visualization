@@ -273,35 +273,33 @@ pca_recipe <- recipe(~ ., data = pollution) %>%
 ```
 
 b. 
-```{r pca-loadings-plot-fixed, message=FALSE, warning=FALSE}
+```{r pca-loadings-plot-final, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(tidymodels)
 library(janitor)
-library(recipes)  # for class1()
 
-# Load and clean data
+# Load and clean the data
 nutrients <- read_csv("https://uwmadison.box.com/shared/static/nmgouzobq5367aex45pnbzgkhm7sur63.csv") %>%
   clean_names()
 
-# Define PCA recipe
+# Define and prep the PCA recipe
 pca_recipe <- recipe(~ ., data = nutrients) %>%
   update_role(name, group, group_lumped, new_role = "id") %>%
   step_normalize(all_numeric_predictors()) %>%
   step_pca(all_numeric_predictors(), num_comp = 6)
 
-# Prep the recipe
 pca_prep <- prep(pca_recipe)
 
-# Extract the PCA step
-pca_step <- pca_prep$steps[[which(map_chr(pca_prep$steps, class1) == "step_pca")]]
+# Extract the PCA step safely
+pca_step <- pca_prep$steps[[which(map_chr(pca_prep$steps, ~ class(.x)[1]) == "step_pca")]]
 
-# Get PCA loadings and reshape
+# Get loadings and reshape
 pca_loadings <- pca_step$res$rotation %>%
   as.data.frame() %>%
   rownames_to_column(var = "nutrient") %>%
   pivot_longer(cols = starts_with("PC"), names_to = "component", values_to = "value")
 
-# Plot
+# Plot top 6 components
 ggplot(pca_loadings %>% filter(component %in% paste0("PC", 1:6)),
        aes(x = value, y = reorder(nutrient, value))) +
   geom_col() +
@@ -316,6 +314,26 @@ ggplot(pca_loadings %>% filter(component %in% paste0("PC", 1:6)),
 
 ```
 
+c.
+```{r pca-part-c-final-fixed, message=FALSE, warning=FALSE}
+# Get PCA scores
+pca_scores <- bake(pca_prep, new_data = NULL)
+
+# Add the group column safely (same row order)
+pca_scores_with_group <- pca_scores %>%
+  mutate(group = nutrients$group)
+
+# Compute and sort average PC2 by group
+avg_pc2_by_group <- pca_scores_with_group %>%
+  group_by(group) %>%
+  summarize(avg_pc2 = mean(PC2, na.rm = TRUE)) %>%
+  arrange(desc(avg_pc2))
+
+# Print results
+avg_pc2_by_group
+
+
+```
 
 
 
