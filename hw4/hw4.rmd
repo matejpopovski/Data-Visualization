@@ -9,6 +9,18 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
 ```
 
+```{r}
+install.packages(c(
+  "tidyverse",   # Includes dplyr, ggplot2, readr, etc.
+  "tidymodels",  # For recipe, normalization, PCA, modeling
+  "patchwork",   # For combining ggplots (used earlier)
+  "ggraph",      # For network visualization
+  "tidygraph",   # For graph data structures
+  "cluster",     # For clustering
+  "Matrix"       # Optional: for matrix visualizations
+))
+```
+
 > Geospatial Datasets 
 
 a. NYC Building Footprints
@@ -245,9 +257,57 @@ The ribbon plot reveals 10 distinct daily profiles of pollution, temperature, an
 > Food Nutrients 
 
 a. 
+```{r pca-airpollution, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidymodels)
 
+# Load the dataset
+pollution <- read_csv("pollution_wide.csv")
 
+# Define PCA recipe (excluding date)
+pca_recipe <- recipe(~ ., data = pollution) %>%
+  update_role(date, new_role = "id") %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_pca(all_numeric_predictors())
 
+```
+
+b. 
+```{r pca-b, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+
+# Load and clean the data
+nutrients <- read_csv("https://uwmadison.box.com/shared/static/nmgouzobq5367aex45pnbzgkhm7sur63.csv") %>%
+  clean_names()
+
+# Define the PCA recipe
+pca_recipe <- recipe(~ ., data = nutrients) %>%
+  update_role(name, group, group_lumped, new_role = "id") %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_pca(all_numeric_predictors(), num_comp = 6)
+
+# Prep the recipe
+pca_prep <- prep(pca_recipe)
+
+# Extract PCA loadings
+pca_loadings <- tidy(pca_prep, number = which(map_chr(pca_prep$steps, ~class(.x)[1]) == "step_pca"))
+
+# Plot loadings for top 6 PCs
+pca_loadings %>%
+  filter(component %in% paste0("PC", 1:6)) %>%
+  ggplot(aes(x = value, y = reorder(term, value))) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_x") +
+  labs(
+    title = "Top 6 Principal Components: Nutrient Loadings",
+    x = "Loading Value",
+    y = "Nutrient"
+  ) +
+  theme_minimal()
+
+```
 
 
 
