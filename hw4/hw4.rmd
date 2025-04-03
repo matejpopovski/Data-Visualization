@@ -9,6 +9,33 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
 ```
 
+> Geospatial Datasets 
+
+a. NYC Building Footprints
+Type: Vector
+Geometry: Polygon
+Reasoning: Building footprints represent the physical outline of buildings, which are best represented as polygons in vector data.
+
+b. Africa Population 2020
+Type: Raster
+Reasoning: Population data over a large area like a continent is typically distributed across a grid, with each pixel representing population density or count. This is raster-based.
+
+c. Himalayan Glacial Lakes
+Type: Vector
+Geometry: Polygon or Point
+Reasoning: Each lake can be represented as a polygon (to show the surface area) or sometimes as a point (if only the location is needed). Most detailed datasets use polygons.
+
+d. Wisconsin EV Charging
+Type: Vector
+Geometry: Point
+Reasoning: Charging stations are individual locations, best represented as points in a vector format.
+
+e. Zion Elevation
+Type: Raster
+Reasoning: Elevation is continuous data and is best represented as a raster (like a Digital Elevation Model), where each cell has an elevation value.
+
+
+
 
 ```{r}
 
