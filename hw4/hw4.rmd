@@ -181,28 +181,28 @@ c. The adjacency matrix would show three dense diagonal blocks representing tigh
 knitr::include_graphics("Screenshot1.png")
 ```
 
->
+> Beijing Air Pollution
 
-
+a.
 ```{r beijing-cluster, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(cluster)
 library(ggplot2)
 
-# Load data
-beijing <- read_csv("beijing.csv")
+# Load your data
+beijing <- read_csv("pollution_wide.csv")
 
 # Scale pollution, temp, and windspeed hourly columns
 data_scaled <- beijing %>%
   select(matches("pollution_\\d+|temp_\\d+|wndspd_\\d+")) %>%
   scale()
 
-# Hierarchical clustering
+# Perform hierarchical clustering
 d <- dist(data_scaled)
 hc <- hclust(d)
 beijing$cluster <- cutree(hc, k = 10)
 
-# Long format for ribbon plot
+# Convert to long format for visualization
 beijing_long <- beijing %>%
   select(cluster, matches("pollution_\\d+|temp_\\d+|wndspd_\\d+")) %>%
   pivot_longer(
@@ -213,7 +213,7 @@ beijing_long <- beijing %>%
   ) %>%
   mutate(hour = as.numeric(hour))
 
-# Compute quantiles per hour, type, and cluster
+# Summarize quantiles per cluster, type, and hour
 cluster_summary <- beijing_long %>%
   group_by(cluster, type, hour) %>%
   summarise(
@@ -223,15 +223,23 @@ cluster_summary <- beijing_long %>%
     .groups = "drop"
   )
 
-# Plot ribbon chart
+# Ribbon plot
 ggplot(cluster_summary, aes(x = hour)) +
   geom_ribbon(aes(ymin = q25, ymax = q75, fill = as.factor(cluster)), alpha = 0.3) +
   geom_line(aes(y = q50, color = as.factor(cluster))) +
   facet_wrap(~type, scales = "free_y") +
-  labs(title = "Clustered Daily Air Pollution Patterns",
-       x = "Hour of Day", y = "Value",
-       fill = "Cluster", color = "Cluster") +
+  labs(
+    title = "Clustered Daily Air Pollution Patterns in Beijing",
+    x = "Hour of Day", y = "Value",
+    fill = "Cluster", color = "Cluster"
+  ) +
   theme_minimal()
+
+```
+
+Interpretation:
+
+The ribbon plot reveals 10 distinct daily profiles of pollution, temperature, and windspeed patterns in Beijing from 2010 to 2014. Several clusters exhibit clear morning and evening pollution peaks, likely driven by traffic congestion and low wind conditions. Other clusters show stable or low pollution levels throughout the day, often associated with higher daytime temperatures or consistent wind speeds, which support atmospheric dispersion. Clusters with narrow ribbons suggest typical, consistent daily patterns, while wider ribbons highlight more variable or extreme weather and pollution conditions across different days.
 
 
 
