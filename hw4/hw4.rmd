@@ -154,6 +154,26 @@ ggraph(G, layout = "fr") +  # Fruchterman-Reingold layout for clarity
 
 ```
 
+adj matrix
+```{r}
+library(igraph)
+
+# Define edges
+edges <- matrix(c(
+  1, 2,
+  1, 3,
+  1, 5,
+  2, 4
+), byrow = TRUE, ncol = 2)
+
+# Create undirected graph
+g <- graph_from_edgelist(edges, directed = FALSE)
+
+# Create adjacency matrix
+adj_matrix <- as.matrix(as_adjacency_matrix(g))
+adj_matrix
+
+```
 
 
 
