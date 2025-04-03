@@ -122,6 +122,21 @@ ggplot(unemployment_summary) +
 
 > HIV Network
 
+a. 
+```{r}
+library(tidygraph)
+library(ggraph)
+library(readr)
+library(dplyr)
+
+# Load nodes and edges
+nodes <- read_csv("https://github.com/krisrs1128/stat436_s25/raw/refs/heads/main/data/hiv_nodes.csv")
+edges <- read_csv("https://github.com/krisrs1128/stat436_s25/raw/refs/heads/main/data/hiv_edges.csv")
+
+# Create graph object
+G <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+
+```
 
 
 
