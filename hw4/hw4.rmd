@@ -82,7 +82,7 @@ library(dplyr)
 library(lubridate)
 
 # Load the dataset (adjust path if needed)
-unemployment <- read_sf("data/unemployment.geojson") %>%
+unemployment <- read_sf("unemployment.geojson") %>%
   mutate(date = as.Date(date))  # make sure 'date' is Date type
 
 # Ensure 'year' column exists (in case it's missing or needs extraction)
@@ -97,6 +97,28 @@ head(unemployment_summary)
 
 ```
 
+d. Implementing approach 3
+```{r}
+library(ggplot2)
+library(sf)
+
+# Plot max unemployment per county for each year
+ggplot(unemployment_summary) +
+  geom_sf(aes(fill = max_unemployment), color = "white", size = 0.1) +
+  facet_wrap(~year) +
+  scale_fill_viridis_c(name = "Max Unemployment", option = "C", direction = -1) +
+  labs(
+    title = "Maximum Unemployment by County (2014–2020)",
+    caption = "Data Source: unemployment.geojson"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 10, face = "bold"),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+```
 
 
 
