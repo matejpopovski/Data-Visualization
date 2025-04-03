@@ -75,6 +75,7 @@ This visualization shows choropleth maps of California by year, with counties sh
 
 The main weakness of this method is its lack of temporal granularity. Because it aggregates each year to a single “maximum unemployment” value, it hides within-year variation, such as seasonal unemployment spikes or short-term shocks. Additionally, side-by-side maps can become difficult to compare accurately due to subtle shading differences, especially if color bins are too wide or too narrow. Without interactive tools, it's also harder to compare specific values between years or counties unless clearly labeled.
 
+c.
 
 
 
