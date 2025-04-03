@@ -11,24 +11,11 @@ knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
 
 
 ```{r}
-#install.packages("nycflights13")
-library(nycflights13)
-library(dplyr)
-```
 
-```{r}
-# [NYC Flights] a)
-flights_speed <- flights |> 
-  select(carrier, air_time, distance) |> 
-  mutate(speed = distance / (air_time / 60))  # Convert air_time to hours
 
-head(flights_speed)  # Check the first few rows
+
 
 ```
-
-
-
-
 
 
 
