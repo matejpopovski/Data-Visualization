@@ -34,11 +34,20 @@ e. Zion Elevation
 Type: Raster
 Reasoning: Elevation is continuous data and is best represented as a raster (like a Digital Elevation Model), where each cell has an elevation value.
 
-
-
-
 ```{r}
 
+library(osmdata)
+library(sf)
+library(ggplot2)
+
+wi_ev <- opq("Wisconsin") %>%
+  add_osm_feature(key = "amenity", value = "charging_station") %>%
+  osmdata_sf()
+
+ggplot(data = wi_ev$osm_points) +
+  geom_sf(color = "blue", size = 1) +
+  ggtitle("EV Charging Stations in Wisconsin") +
+  theme_minimal()
 
 
 
