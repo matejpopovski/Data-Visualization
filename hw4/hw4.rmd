@@ -175,7 +175,7 @@ adj_matrix
 
 ```
 
-
+c. The adjacency matrix would show three dense diagonal blocks representing tight connections within clusters, with sparser off-diagonal values indicating limited links between clusters — reflecting the community structure seen in the node-link diagram.
 
 
 
