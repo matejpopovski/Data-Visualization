@@ -9,8 +9,7 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
 ```
 
-```{r}
-install.packages(c(
+<!--install.packages(c(
   "tidyverse",   # Includes dplyr, ggplot2, readr, etc.
   "tidymodels",  # For recipe, normalization, PCA, modeling
   "patchwork",   # For combining ggplots (used earlier)
@@ -18,8 +17,7 @@ install.packages(c(
   "tidygraph",   # For graph data structures
   "cluster",     # For clustering
   "Matrix"       # Optional: for matrix visualizations
-))
-```
+))-->
 
 > Code Diary
 
