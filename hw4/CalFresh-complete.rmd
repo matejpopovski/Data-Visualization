@@ -1,0 +1,354 @@
+---
+title: "hw4-1"
+output: html_document
+date: "2025-03-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+knitr::opts_chunk$set(cache = FALSE, message = FALSE, warning = FALSE, echo = TRUE)
+```
+
+
+read data, prepare libraries
+
+```{r}
+#install.packages("ggthemes")
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggthemes)
+library(sf)
+library(readr)
+library(viridis)
+```
+
+
+
+
+# Load the dataset
+url <- "https://raw.githubusercontent.com/krisrs1128/stat436_s25/refs/heads/main/data/unemployment.geojson"
+gdf <- st_read(url)
+
+```{r}
+url <- "https://raw.githubusercontent.com/krisrs1128/stat436_s25/refs/heads/main/data/unemployment.geojson"
+gdf <- st_read(url)
+gdf
+```
+
+```{r}
+gdf$Unemployment <- as.numeric(gdf$unemployment)
+gdf$Year <- as.integer(substr(gdf$date, 1, 4))
+gdf$Month <- as.integer(substr(gdf$date, 6, 7))
+
+```
+
+
+
+# 1. Facet plots
+
+```{r}
+ggplot(gdf, aes(x = Month, y = Unemployment, color = as.factor(Year))) +
+  geom_line() +
+  facet_wrap(~ county, scales = "free_y") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Unemployment Trends by County", x = "Month", y = "Unemployment Rate", color = "Year")
+
+```
+
+1. Facet plots -1
+
+```{r}
+# 1. Facet plots for selected counties
+focus <- c("Colusa", "Monterey", "San Francisco", "Imperial", "Los Angeles", "San Joaquin")
+gdf_focus <- gdf %>% filter(county %in% focus)
+
+ggplot(gdf_focus, aes(x = Month, y = Unemployment, color = as.factor(Year))) +
+  geom_line() +
+  facet_wrap(~ county, ncol = 2) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  scale_y_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 10)) +
+  labs(title = "Unemployment Trends in Selected Counties", x = "Month", y = "Unemployment Rate", color = "Year")
+
+```
+
+1.-Facet -2
+
+```{r}
+focus <- c("Colusa", "Monterey", "San Francisco", "Imperial", "Los Angeles", "San Joaquin")
+gdf_focus <- gdf %>% filter(county %in% focus)
+
+ggplot(gdf_focus, aes(x = Month, y = Unemployment, color = as.factor(Year))) +
+  geom_line() +
+  facet_wrap(~ county, ncol = 2) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  scale_y_continuous(limits = c(0, 30), breaks = seq(0, 30, by = 10)) +
+  scale_x_continuous(breaks = seq(1, 12, by = 1), labels = month.abb) +
+  labs(title = "Unemployment Trends in Selected Counties", x = "Month", y = "Unemployment Rate", color = "Year")
+
+```
+
+
+# 2. Heatmap
+
+```{r}
+heatmap_data <- gdf %>%
+  select(county, Year, Month, Unemployment) %>%
+  spread(key = c(Year, Month), value = Unemployment)
+
+counties_sorted <- heatmap_data %>%
+  rowwise() %>%
+  mutate(avg_unemployment = mean(c_across(-County), na.rm = TRUE)) %>%
+  arrange(desc(avg_unemployment)) %>%
+  pull(County)
+
+gdf$County <- factor(gdf$County, levels = counties_sorted)
+gdf$Unemployment_sqrt <- sqrt(gdf$Unemployment)
+
+ggplot(gdf, aes(x = interaction(Year, Month), y = County, fill = Unemployment_sqrt)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = c("blue", "lightblue", "tan", "brown"), limits = c(1, 5)) +
+  theme_minimal() +
+  labs(title = "Heatmap of Unemployment by County", x = "Year-Month", y = "County", fill = "Scaled Unemployment")
+
+```
+
+2. Heath Map -1
+
+
+```{r}
+# 2. Heatmap
+heatmap_data <- gdf %>%
+  select(county, Year, Month, Unemployment) %>%
+  pivot_wider(names_from = c(Year, Month), values_from = Unemployment)
+
+counties_sorted <- heatmap_data %>%
+  rowwise() %>%
+  mutate(avg_unemployment = mean(c_across(-county), na.rm = TRUE)) %>%
+  arrange(desc(avg_unemployment)) %>%
+  pull(county)
+
+gdf$County <- factor(gdf$County, levels = counties_sorted)
+gdf$Unemployment_sqrt <- sqrt(gdf$Unemployment)
+
+ggplot(gdf, aes(x = interaction(Year, Month), y = County, fill = Unemployment_sqrt)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = c("blue", "lightblue", "tan", "brown"), limits = c(1, 5)) +
+  theme_minimal() +
+  labs(title = "Heatmap of Unemployment by County", x = "Year-Month", y = "County", fill = "Scaled Unemployment")
+
+```
+
+2.Heatmap-3
+
+```{r}
+heatmap_data <- gdf %>%
+  select(county, Year, Month, Unemployment) %>%
+  pivot_wider(names_from = c(Year, Month), values_from = Unemployment)
+
+counties_sorted <- heatmap_data %>%
+  rowwise() %>%
+  mutate(avg_unemployment = mean(c_across(-county), na.rm = TRUE)) %>%
+  arrange(desc(avg_unemployment)) %>%
+  pull(County)
+
+gdf$County <- factor(gdf$county, levels = counties_sorted)
+gdf$Unemployment_sqrt <- sqrt(gdf$Unemployment)
+
+ggplot(gdf, aes(x = interaction(Year, Month), y = County, fill = Unemployment_sqrt)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = c("blue", "lightblue", "tan", "brown"), limits = c(1, 5)) +
+  theme_minimal() +
+  labs(title = "Heatmap of Unemployment by County", x = "Year-Month", y = "County", fill = "Sqrt(Unemployment %)")
+
+```
+
+
+2.Heatmap -4
+
+```{r}
+heatmap_data <- gdf %>%
+  select(county, Year, Month, Unemployment) %>%
+  st_drop_geometry() %>%  # Remove geometry before reshaping
+  pivot_wider(names_from = c(Year, Month), values_from = Unemployment)
+
+counties_sorted <- heatmap_data %>%
+  rowwise() %>%
+  mutate(avg_unemployment = mean(c_across(-county), na.rm = TRUE)) %>%
+  arrange(desc(avg_unemployment)) %>%
+  pull(county)
+
+gdf$County <- factor(gdf$county, levels = counties_sorted)
+gdf$Unemployment_sqrt <- sqrt(gdf$Unemployment)
+
+ggplot(gdf, aes(x = interaction(Year, Month), y = County, fill = Unemployment_sqrt)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = c("blue", "lightblue", "tan", "brown"), limits = c(1, 5)) +
+  theme_minimal() +
+  labs(title = "Heatmap of Unemployment by County", x = "Year-Month", y = "County", fill = "Sqrt(Unemployment %)")
+
+```
+
+
+
+
+ 3. California Map
+ 
+```{r}
+california <- gdf %>% filter(State == "California")
+
+california <- california %>%
+  mutate(Color = cut(Unemployment, breaks = c(0, 5, 10, 15, 20, 25, 30),
+                     labels = c("#FFFF99", "#FFE680", "#FFCC66", "#FF9966", "#CC6633", "#663300"),
+                     include.lowest = TRUE))
+
+ggplot() +
+  geom_sf(data = california, aes(fill = Unemployment)) +
+  scale_fill_viridis(option = "YlOrBr", direction = -1) +
+  theme_minimal() +
+  labs(title = "Unemployment Rate in California Counties", fill = "Unemployment %")
+```
+ 
+ 3- California map
+ 
+ 
+```{r}
+california <- gdf %>%
+  mutate(Color = cut(Unemployment, breaks = c(0, 5, 10, 15, 20, 25, 30),
+                     labels = c("#FFFF99", "#FFE680", "#FFCC66", "#FF9966", "#CC6633", "#663300"),
+                     include.lowest = TRUE))
+
+ggplot() +
+  geom_sf(data = california, aes(fill = Color)) +
+  scale_fill_identity() +
+  theme_minimal() +
+  labs(title = "Unemployment Rate in California Counties", fill = "Unemployment %")
+```
+ 
+ 
+c3-california map -2
+
+```{r}
+
+# 3. California Map Faceted by Year
+gdf <- gdf %>% filter(Year >= 2014, Year <= 2020) %>%
+  mutate(Color = cut(Unemployment, breaks = c(0, 5, 10, 15, 20, 25, 30),
+                     labels = c("#FFFF99", "#FFE680", "#FFCC66", "#FF9966", "#CC6633", "#663300"),
+                     include.lowest = TRUE))
+
+ggplot(gdf) +
+  geom_sf(aes(fill = Color)) +
+  scale_fill_identity() +
+  facet_wrap(~ Year) +
+  theme_minimal() +
+  labs(title = "Unemployment Rate in California Counties (2014-2020)", fill = "Unemployment %")
+
+
+```
+
+
+a.    Graphical encoding refers to the use of visual elements to represent data in a graph or chart. It involves mapping data attributes (such as values, categories, or distributions) to visual properties like position, size, shape, color, and orientation. The goal of graphical encoding is to convey information clearly and effectively, allowing viewers to interpret the data visually.
+
+Example:
+In a bar chart, the height of each bar is a graphical encoding of the value it represents. The longer the bar, the higher the value. The color of the bars could be used to represent different categories (e.g., red for one category, blue for another), which is another form of graphical encoding. This allows the audience to easily compare values and categories at a glance.
+
+b. (Time Series Across Counties and Years)
+Strengths: Comparison of trends: Facet plots are particularly good at showing trends over time for multiple groups (in this case, counties), allowing for easy comparison of how unemployment rates evolved over months and across counties.
+- Detailed view: By breaking down the data into smaller subplots for each county and year, viewers can examine the specifics for each location and year.
+- Clear labeling: Facets allow for easy labeling of each county, making it simple to trace individual county trends.
+Weaknesses:
+- Clutter: If there are too many counties or years, the plot can become crowded and harder to interpret.
+- Scaling issues: The same y-axis for all counties may cause difficulty when the unemployment rates vary significantly between counties. This may lead to skewed perceptions of smaller fluctuations in counties with low unemployment.
+Best for: Comparing trends across multiple groups (counties) and time (years), especially when the goal is to see how unemployment fluctuated over months for specific counties.
+
+2. Heatmap (County-Year Unemployment Data)
+Strengths: Pattern detection: Heatmaps are great for identifying patterns and trends in large datasets, such as spotting years with high or low unemployment or seeing how unemployment varies across different counties.
+- Efficient for large datasets: Heatmaps allow for the display of a large number of data points in a compact space, making it easier to spot correlations or changes across years and counties.
+- Color intensity: The use of color to represent intensity (e.g., sqrt(Unemployment %)) provides an immediate visual cue about the relative scale of unemployment rates.
+Weaknesses: Over-simplification: Heatmaps can obscure detailed numerical data and may not be the best at showing exact values unless hovered over or supplemented with labels.
+- Hard to compare exact values: While it’s easy to spot general trends, comparing the exact unemployment rate between counties or across months can be challenging without additional tools or annotations.
+- Color interpretation: Users might misinterpret the heatmap if the color scale is not intuitively understood or if there’s color-blindness involved.
+Best for: Showing patterns across a large set of counties and years in a compact, visually appealing way. Ideal for spotting clusters of high/low unemployment across regions and time periods.
+
+3. Map (California Counties by Unemployment Rate)
+Strengths: Geospatial understanding: Maps provide a clear spatial context, helping users to associate unemployment rates with specific geographic locations. This is especially useful when geographic trends are important.
+- Intuitive interpretation: Color-coded maps make it easy to grasp the geographic distribution of unemployment rates at a glance, where higher unemployment areas are immediately recognizable (e.g., brown for high unemployment).
+- Effective for regional analysis: It’s a great technique for highlighting regional disparities in unemployment rates across the state (or country).
+Weaknesses: Limited detail: Maps can show general geographic patterns but are less useful for seeing detailed trends over time or comparing exact numerical values between regions.
+- Difficult to handle overlaps: In a highly detailed map with multiple regions, it can be difficult to show finer details without losing clarity.
+- Not suited for time-based analysis: Maps are generally static and less effective for illustrating changes over time unless multiple maps are shown (as facet plots would).
+Best for: Showing spatial distribution and understanding geographic patterns, particularly when focusing on regional disparities or visualizing data in the context of physical locations.
+
+Summary of Strengths and Weaknesses:
+Facet Plot: Best for time-based comparisons across counties and years but can become cluttered when too many categories are involved.
+
+Heatmap: Excellent for identifying broad patterns and trends in a compact space but less effective for precise value comparison or geographic context.
+
+Map: Best for showing geographic trends and regional disparities but doesn’t handle time-based or detailed value comparisons well.
+
+Each visualization technique excels in different aspects of data interpretation, with facet plots being ideal for understanding temporal trends, heatmaps for spotting patterns across a large dataset, and maps for revealing geographic patterns. Combining all three provides a comprehensive understanding of the data.
+
+
+c.
+
+Provide code to answer: For each county and year, what was the maximum unemployment rate across all months
+
+```{r}
+library(dplyr)
+
+# Load the dataset
+url <- "https://raw.githubusercontent.com/krisrs1128/stat436_s25/refs/heads/main/data/unemployment.geojson"
+gdf <- st_read(url)
+
+# Ensure Unemployment is numeric
+gdf$Unemployment <- as.numeric(gdf$unemployment)
+
+# Extract Year and Month from the 'Month' column
+gdf$Year <- as.integer(substr(gdf$date, 1, 4))
+gdf$Month <- as.integer(substr(gdf$date, 6, 7))
+
+# Calculate the maximum unemployment rate for each county and year
+max_unemployment <- gdf %>%
+  group_by(county, Year) %>%
+  summarise(Max_Unemployment = max(unemployment, na.rm = TRUE))
+
+# View the results
+print(max_unemployment)
+
+```
+
+
+
+
+
+
+
