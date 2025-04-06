@@ -74,8 +74,6 @@ ggplot(data = wi_ev$osm_points) +
   ggtitle("EV Charging Stations in Wisconsin") +
   theme_minimal()
 
-
-
 ```
 
 
