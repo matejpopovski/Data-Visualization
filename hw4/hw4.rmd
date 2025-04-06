@@ -203,6 +203,10 @@ c. The adjacency matrix would show three dense diagonal blocks representing tigh
 ```{r fig.align='center', echo=FALSE, out.width="70%"}
 knitr::include_graphics("Screenshot1.png")
 ```
+Adjacency matrix is symmetric, block diagonal with dense intra-cluster blocks. 
+Sparse off-diagonal entries reflect the minimal inter-cluster connections.
+In example visually, the matrix has three dense squares and a few off-block connections.
+
 
 > Beijing Air Pollution
 
