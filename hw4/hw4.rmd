@@ -390,7 +390,7 @@ ggplot(pca_scores_with_group, aes(x = PC1, y = PC2)) +
 The groups with high PC2 values in part (c) — such as Fats and Oils and Meats — appear higher in the PC2 dimension in the plots, confirming our interpretation in part (b). Similarly, groups like Sweets and Cereals show lower PC2 scores, suggesting higher sugar or carb content. This visual comparison supports our PCA findings.
 
 
-> Concept Map 
+> Concept Map
 
 Concept Map for Week 8: Networks and Visualization Strategies
 
@@ -455,6 +455,7 @@ Enclosure → Hierarchical Networks: Containment helps visualize nested communit
 ```{r fig.align='center', echo=FALSE, out.width="70%"}
 knitr::include_graphics("Screenshot2.png")
 ```
+
 
 
 
