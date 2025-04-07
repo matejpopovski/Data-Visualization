@@ -137,7 +137,7 @@ ggplot(unemployment_summary) +
   theme_minimal() +
   theme(
     strip.text = element_text(size = 10, face = "bold"),
-    axis.text = element_blank(),
+    #axis.text = element_blank(),
     axis.ticks = element_blank()
   )
 
