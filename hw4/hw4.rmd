@@ -452,8 +452,61 @@ Node-Link Diagrams ↔ Adjacency Matrix: Complementary strategies—node-link is
 
 Enclosure → Hierarchical Networks: Containment helps visualize nested communities or tree structures.
 
-```{r fig.align='center', echo=FALSE, out.width="70%"}
-knitr::include_graphics("Screenshot2.png")
+
+```{r}
+# If you haven't already:
+# install.packages("DiagrammeR")
+
+library(DiagrammeR)
+
+grViz("
+digraph concept_map_week8 {
+  
+  graph [layout = dot, rankdir = LR]
+  
+  node [shape = rectangle, style = filled, fillcolor = lightblue, fontname = Helvetica, fontsize = 11]
+
+  // Define Nodes
+  Graphs [label = 'Graphs']
+  Vertices [label = 'Vertices (Nodes)']
+  Edges [label = 'Edges (Links)']
+  DirectedUndirected [label = 'Directed vs Undirected Edges']
+  NodeAttr [label = 'Node Attributes']
+  EdgeAttr [label = 'Edge Attributes']
+  Tasks [label = 'Tasks on Networks']
+  Examples [label = 'Network Examples:\nInternet, Evolutionary Trees,\nDisease Networks']
+  Trees [label = 'Trees']
+  NodeLink [label = 'Node-Link Diagrams']
+  Layout [label = 'Layout Algorithms:\nForce-directed, Kamada-Kawai']
+  AdjMatrix [label = 'Adjacency Matrix']
+  Bundling [label = 'Edge Bundling']
+  Enclosure [label = 'Enclosure (Containment)']
+  CirclePacking [label = 'Circle Packing']
+  Treemaps [label = 'Treemaps']
+  Hierarchical [label = 'Hierarchical Networks']
+
+  // Define Edges with explanations
+  Graphs -> Vertices [label = 'made of']
+  Graphs -> Edges [label = 'connects vertices']
+  Edges -> DirectedUndirected [label = 'defines directionality']
+  Vertices -> NodeAttr [label = 'can have']
+  Edges -> EdgeAttr [label = 'can have']
+  Graphs -> Tasks [label = 'used for']
+  Tasks -> Examples [label = 'demonstrated in']
+  Graphs -> Trees [label = 'special case']
+  Graphs -> NodeLink [label = 'visualized with']
+  NodeLink -> Layout [label = 'arranged using']
+  Graphs -> AdjMatrix [label = 'alternative representation']
+  AdjMatrix -> EdgeAttr [label = 'encodes weights/presence']
+  AdjMatrix -> Layout [label = 'affects interpretation']
+  Graphs -> Enclosure [label = 'for hierarchy']
+  Enclosure -> CirclePacking [label = 'nested nodes']
+  Enclosure -> Treemaps [label = 'rectangular areas']
+  NodeLink -> AdjMatrix [dir=both, label = 'complementary views']
+  Enclosure -> Hierarchical [label = 'used to show']
+}
+")
+
 ```
 
 
