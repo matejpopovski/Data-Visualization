@@ -1,0 +1,201 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-04-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ COPILOT
+
+```{r}
+#install.packages("igraph")
+#install.packages("ggraph")
+#install.packages("tidyverse")
+
+library(igraph)
+library(ggraph)
+library(tidyverse)
+library(ggplot2)
+```
+
+## Define nodes edges
+
+You can also embed plots, for example:
+
+```{r }
+# Define nodes
+nodes <- data.frame(
+  id = c(
+    "Networks and Trees", "Vertices or Edges Might Have Attributes",
+    "Edge: Directed or Undirected", "Relevant Data Structures",
+    "Height or Radius Encoding Depth in the Tree", "Layout Algorithms for Networks",
+    "Adjacency Matrix Views", "Visualization of Hierarchical Structure Using Containment",
+    "Internet", "Evolutionary Tree", "Disease Transmission",
+    "Physical Interactions", "Conceptual Relationships",
+    "Treemap", "Cavet"
+  ),
+  group = c("Abstract", "Abstract", "Abstract", "Abstract", "Abstract", "Abstract",
+            "Abstract", "Abstract", "Practical", "Practical", "Practical",
+            "Task", "Task", "Visualization", "Visualization")
+)
+
+# Define edges
+edges <- data.frame(
+  from = c(
+    "Networks and Trees", "Networks and Trees", "Networks and Trees",
+    "Networks and Trees", "Networks and Trees", "Networks and Trees",
+    "Networks and Trees", "Networks and Trees",
+    "Relevant Data Structures", "Vertices or Edges Might Have Attributes",
+    "Vertices or Edges Might Have Attributes", "Visualization of Hierarchical Structure Using Containment",
+    "Visualization of Hierarchical Structure Using Containment", "Networks and Trees",
+    "Networks and Trees", "Networks and Trees"
+  ),
+  to = c(
+    "Vertices or Edges Might Have Attributes", "Edge: Directed or Undirected",
+    "Relevant Data Structures", "Height or Radius Encoding Depth in the Tree",
+    "Layout Algorithms for Networks", "Adjacency Matrix Views",
+    "Visualization of Hierarchical Structure Using Containment", "Internet",
+    "Adjacency Matrix Views", "Edge: Directed or Undirected",
+    "Physical Interactions", "Treemap", "Cavet", "Evolutionary Tree",
+    "Disease Transmission", "Conceptual Relationships"
+  )
+)
+```
+
+create graph
+
+
+```{r}
+graph <- graph_from_data_frame(edges, vertices = nodes, directed = TRUE)
+graph
+print(nodes)
+```
+
+plot concept map
+
+```{r}
+ggraph(graph, layout = "fr") +  # Fruchterman-Reingold layout for clarity
+  geom_edge_link(aes(label = NA), arrow = arrow(length = unit(4, 'mm')), end_cap = circle(3, 'mm'), alpha = 0.7) +
+  geom_node_point(aes(color = group), size = 5) +
+  geom_node_text(aes(label =nodes$id), repel = TRUE, size = 4) +
+  theme_minimal() +
+  labs(title = "Concept Map: Trees and Networks",
+       subtitle = "Exploring abstract concepts and practical examples",
+       color = "Group")
+
+```
+
+GPT
+
+```{r}
+#install.packages("DiagrammeR")
+library(DiagrammeR)
+
+grViz("
+digraph tree_network_concept_map {
+  
+  graph [layout = dot, rankdir = LR]
+
+  node [shape = rectangle, style = filled, fillcolor = lightblue, fontname = Helvetica, fontsize = 12]
+
+  Networks_and_Trees [label = 'Networks and Trees']
+  Examples [label = 'Examples:\nInternet,\nEvolutionary Tree,\nDisease Transmission']
+  NodeEdgeAttr [label = 'Node & Edge Attributes:\nDirected, Weighted, Labels']
+  DataStruct [label = 'Data Structures:\nAdjacency Matrix / List']
+  Tasks [label = 'Related Tasks:\nPhysical / Conceptual']
+  Layout [label = 'Layout:\nRadial, Force-Directed']
+  DepthEncoding [label = 'Encoding Depth:\nHeight / Radius']
+  Containment [label = 'Containment Hierarchy:\nTreemap, Cavet, Circle Packing']
+  MatrixViews [label = 'Adjacency Matrix Views:\nBlock / Cluster Structure']
+
+  // Edges with explanations
+  Networks_and_Trees -> Examples [label = 'modeled with']
+  Networks_and_Trees -> NodeEdgeAttr [label = 'composed of']
+  Networks_and_Trees -> DataStruct [label = 'represented using']
+  Networks_and_Trees -> Tasks [label = 'used in']
+  Networks_and_Trees -> Layout [label = 'visualized via']
+  Networks_and_Trees -> DepthEncoding [label = 'for Trees']
+  Networks_and_Trees -> MatrixViews [label = 'alternate view']
+  Networks_and_Trees -> Containment [label = 'tree visualization using']
+
+  Containment -> DepthEncoding [label = 'encodes depth via area or nesting']
+  MatrixViews -> DataStruct [label = 'matrix form of']
+  NodeEdgeAttr -> Layout [label = 'affects visual layout']
+}
+")
+
+
+```
+
+`GTP 2`
+
+
+```{r}
+# Load libraries
+library(ggplot2)
+library(ggforce)
+library(tibble)
+library(ggrepel)
+library(dplyr)
+
+# Define nodes
+nodes <- tribble(
+  ~id, ~label, ~x, ~y,
+  "A", "Networks and Trees", 0, 0,
+  "B", "Examples:\nInternet,\nEvolutionary Tree,\nDisease Transmission", -4, 2,
+  "C", "Node & Edge Attributes:\nDirected, Weighted, Labels", -4, -2,
+  "D", "Data Structures:\nAdjacency Matrix / List", 2, 2,
+  "E", "Related Tasks:\nPhysical / Conceptual", 2, -2,
+  "F", "Layout:\nRadial, Force-Directed", 4, 0,
+  "G", "Encoding Depth:\nHeight / Radius", 0, -4,
+  "H", "Containment Hierarchy:\nTreemap, Cavet, Circle Packing", -2, -6,
+  "I", "Adjacency Matrix Views:\nBlock / Cluster Structure", 4, 4
+)
+
+# Define edges
+edges <- tribble(
+  ~from, ~to, ~label,
+  "A", "B", "modeled with",
+  "A", "C", "composed of",
+  "A", "D", "represented using",
+  "A", "E", "used in",
+  "A", "F", "visualized via",
+  "A", "G", "for Trees",
+  "A", "H", "tree visualization using",
+  "A", "I", "alternate view",
+  "H", "G", "encodes depth via area/nesting",
+  "I", "D", "matrix form of",
+  "C", "F", "affects visual layout"
+)
+
+# Join coordinates for edge drawing
+edges_coords <- edges %>%
+  left_join(nodes, by = c("from" = "id")) %>%
+  rename(x_start = x, y_start = y) %>%
+  left_join(nodes, by = c("to" = "id")) %>%
+  rename(x_end = x, y_end = y)
+
+# Plot
+ggplot() +
+  geom_segment(data = edges_coords, 
+               aes(x = x_start, y = y_start, xend = x_end, yend = y_end),
+               arrow = arrow(length = unit(0.25, "cm")), 
+               color = "gray30") +
+  geom_label_repel(data = nodes, 
+                   aes(x = x, y = y, label = label),
+                   fill = "lightblue", color = "black", size = 3.5,
+                   fontface = "bold", box.padding = 0.5,
+                   point.padding = 0.3, segment.color = NA) +
+  geom_text(data = edges_coords,
+            aes(x = (x_start + x_end)/2, y = (y_start + y_end)/2, label = label),
+            size = 3, hjust = 0.5, vjust = -0.5, color = "black") +
+  theme_void() +
+  ggtitle("Concept Map: Trees and Networks") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 16))
+
+```
+
+
