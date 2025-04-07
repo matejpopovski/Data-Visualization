@@ -76,6 +76,30 @@ ggplot(data = wi_ev$osm_points) +
 
 ```
 
+Extra version - colored scatters
+```{r}
+library(osmdata)
+library(sf)
+library(ggplot2)
+
+# Get EV charging station data in Wisconsin
+wi_ev <- opq("Wisconsin") %>%
+  add_osm_feature(key = "amenity", value = "charging_station") %>%
+  osmdata_sf()
+
+# Plot with coloring by 'operator' and rotated x-axis labels
+ggplot(data = wi_ev$osm_points) +
+  geom_sf(aes(color = operator), size = 1) +
+  ggtitle("EV Charging Stations in Wisconsin (by Operator)") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  guides(color = guide_legend(title = "Operator"))
+
+```
+
 
 > CalFresh Comparison 
 
