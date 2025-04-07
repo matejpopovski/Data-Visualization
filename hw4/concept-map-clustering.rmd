@@ -1,0 +1,144 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-04-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+copilot
+
+```{r}
+#install.packages("igraph")
+#install.packages("ggraph")
+#install.packages("tidyverse")
+
+library(igraph)
+library(ggraph)
+library(tidyverse)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r }
+# Define nodes (concepts)
+nodes <- data.frame(
+  id = c(
+    "Clustering", "Concepts", "Cluster Tree", "Heatmap", "Faceting", 
+    "Ordering", "Silhouette Statistics", "Algorithms", "K-Means", 
+    "Hierarchical Clustering", "Cutting Tree", "Network Clustering Algorithm", 
+    "Cluster Membership Using Color", "Centroids", "Applications", 
+    "User Segmentation", "Gene Expression Profiling", "Users by Movie Ratings", 
+    "Disease Transmission", "Contact Tracing"
+  ),
+  group = c(
+    "Abstract", "Abstract", "Concept", "Concept", "Concept", "Concept",
+    "Concept", "Abstract", "Algorithm", "Algorithm", "Algorithm", 
+    "Algorithm", "Algorithm", "Algorithm", "Abstract", "Application", 
+    "Application", "Application", "Application", "Application"
+  )
+)
+
+# Define edges (connections between concepts)
+edges <- data.frame(
+  from = c(
+    "Clustering", "Clustering", "Concepts", "Concepts", "Concepts", 
+    "Concepts", "Concepts", "Clustering", "Algorithms", "Algorithms", 
+    "Algorithms", "Algorithms", "Algorithms", "Clustering", "Applications", 
+    "Applications", "Applications", "Applications", "Applications"
+  ),
+  to = c(
+    "Concepts", "Algorithms", "Cluster Tree", "Heatmap", "Faceting", 
+    "Ordering", "Silhouette Statistics", "Applications", "K-Means", 
+    "Hierarchical Clustering", "Cutting Tree", "Network Clustering Algorithm", 
+    "Centroids", "Applications", "User Segmentation", "Gene Expression Profiling", 
+    "Users by Movie Ratings", "Disease Transmission", "Contact Tracing"
+  )
+)
+```
+
+
+create graph
+
+```{r}
+graph <- graph_from_data_frame(edges, vertices = nodes, directed = TRUE)
+print(nodes)
+```
+
+plot
+
+```{r}
+ggraph(graph, layout = "fr") +  # Use Fruchterman-Reingold layout
+  geom_edge_link(arrow = arrow(length = unit(4, 'mm')), end_cap = circle(3, 'mm'), alpha = 0.7) +
+  geom_node_point(aes(color = group), size = 5) +
+  geom_node_text(aes(label = nodes$id), repel = TRUE, size = 4) +
+  theme_minimal() +
+  labs(
+    title = "Concept Map: Clustering as a Tool for High-Level Structure",
+    subtitle = "Abstract concepts, algorithms, and applications",
+    color = "Category"
+  )
+```
+
+Copilot lekcijata
+
+```{r}
+# Define nodes (concepts)
+nodes <- data.frame(
+  id = c(
+    "Clustering", "Core Concepts", "Cluster Tree", "Heatmap", "Faceting",
+    "Ordering", "Silhouette Statistics", "Algorithms", "K-Means",
+    "Hierarchical Clustering", "Cutting Tree", "Network Clustering Algorithm",
+    "Cluster Membership Using Color", "Centroids", "Applications",
+    "User Segmentation", "Gene Expression Profiling", "Users by Movie Ratings",
+    "Disease Transmission", "Contact Tracing"
+  ),
+  group = c(
+    "Central", "Abstract", "Concept", "Concept", "Concept",
+    "Concept", "Concept", "Abstract", "Algorithm",
+    "Algorithm", "Algorithm", "Algorithm",
+    "Algorithm", "Algorithm", "Abstract",
+    "Application", "Application", "Application",
+    "Application", "Application"
+  )
+)
+
+# Define edges (connections between concepts)
+edges <- data.frame(
+  from = c(
+    "Clustering", "Clustering", "Core Concepts", "Core Concepts", "Core Concepts",
+    "Core Concepts", "Core Concepts", "Clustering", "Algorithms", "Algorithms",
+    "Algorithms", "Algorithms", "Algorithms", "Clustering", "Applications",
+    "Applications", "Applications", "Applications", "Applications"
+  ),
+  to = c(
+    "Core Concepts", "Algorithms", "Cluster Tree", "Heatmap", "Faceting",
+    "Ordering", "Silhouette Statistics", "Applications", "K-Means",
+    "Hierarchical Clustering", "Cutting Tree", "Network Clustering Algorithm",
+    "Centroids", "Applications", "User Segmentation", "Gene Expression Profiling",
+    "Users by Movie Ratings", "Disease Transmission", "Contact Tracing"
+  )
+)
+```
+
+
+visualize
+
+```{r}
+ggraph(graph, layout = "fr") +  # Fruchterman-Reingold layout
+  geom_edge_link(arrow = arrow(length = unit(4, 'mm')), end_cap = circle(3, 'mm'), alpha = 0.8) +
+  geom_node_point(aes(color = group), size = 5) +
+  geom_node_text(aes(label = nodes$id), repel = TRUE, size = 4) +  # Use node labels as text
+  theme_minimal() +
+  labs(
+    title = "Concept Map: Clustering as a Tool for High-Level Structure",
+    subtitle = "Abstract concepts, algorithms, and applications",
+    color = "Category"
+  )
+
+```
+
