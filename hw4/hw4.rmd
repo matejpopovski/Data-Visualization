@@ -172,8 +172,8 @@ ggraph(G, layout = "fr") +  # Fruchterman-Reingold layout for clarity
   geom_node_point(aes(color = name), size = 2, alpha = 0.8) +
   geom_node_text(aes(label = name), size = 2, repel = TRUE, alpha = 0.7) +
   theme_void() +
-  guides(color = "none") +  # Hide legend to reduce clutter
   ggtitle("HIV Sequence Network: Node-Link Diagram by Country")
+
 
 ```
 
