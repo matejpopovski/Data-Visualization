@@ -91,10 +91,3 @@ reviews_topics |>
   geom_col(position = "dodge") +
   labs(y = "Avg. Topic Probability", x = "Rating")
 ```
-
-
-
-
-
-
-
