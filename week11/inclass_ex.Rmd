@@ -78,7 +78,9 @@ top_terms |>
 ```{r}
 # Extract gamma matrix (document-topic probabilities)
 reviews_topics <- tidy(fit, matrix = "gamma") |> 
-  left_join(reviews, by = c("document"))              # Merges topic data with original review data
+  # Ensure the `document` column in `reviews` is a character to match the type in gamma matrix
+  left_join(reviews |> mutate(document = as.character(document)), by = "document")
+
 ```
 
 ```{r}
