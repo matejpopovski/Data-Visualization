@@ -1,4 +1,3 @@
-
 ---
 title: "Topic Modeling Hotel Reviews with LDA"
 output: html_document
