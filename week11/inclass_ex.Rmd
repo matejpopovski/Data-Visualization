@@ -1,0 +1,92 @@
+
+---
+title: "Topic Modeling Hotel Reviews with LDA"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+## Summary
+
+This R Markdown document demonstrates the use of Latent Dirichlet Allocation (LDA) to extract underlying topics from a set of hotel reviews. The implementation involves loading and preprocessing text data, transforming it into a document-term matrix, and then fitting an LDA model using the `topicmodels` package. The results are visualized to explore common terms in each topic and investigate how topics vary across positive and negative review ratings.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Sets global chunk options for R Markdown
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(knitr)
+library(tidyverse)
+library(topicmodels)
+library(tidytext)
+
+# Sets a minimalist theme for plots
+th <- theme_minimal() + 
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "#f7f7f7"),
+    panel.border = element_rect(fill = NA, color = "#0c0c0c", size = 0.6),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16),
+    legend.position = "bottom"
+  )
+theme_set(th)
+```
+# Loads required libraries and sets a custom plotting theme
+
+```{r}
+# Load hotel reviews dataset
+reviews <- read_csv("https://github.com/krisrs1128/stat436_f24/raw/refs/heads/main/data/reviews.csv")
+
+# Tokenize text into words and remove stopwords
+reviews_dtm <- reviews |>
+  unnest_tokens(word, Review) |>                      # Converts reviews into individual lowercase words
+  filter(!(word %in% stop_words$word)) |>             # Removes common stopwords
+  count(document, word) |>                            # Counts word frequencies per review
+  cast_dtm(document, word, n)                         # Converts to a DocumentTermMatrix for LDA
+```
+
+```{r}
+# Fit LDA model with 8 topics and a fixed seed for reproducibility
+fit <- LDA(reviews_dtm, k = 8, control = list(seed = 123))
+```
+
+```{r}
+# Extract beta matrix (topic-term probabilities)
+topics <- tidy(fit, matrix = "beta")
+```
+
+```{r}
+# Get top 10 terms per topic based on beta value
+top_terms <- topics |>
+  group_by(topic) |>
+  slice_max(beta, n = 10) |>                          # Selects top 10 words per topic
+  ungroup() |>
+  arrange(topic)
+```
+
+```{r}
+# Plot the top terms per topic
+top_terms |>
+  mutate(term = reorder_within(term, beta, topic)) |>
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +              # One plot for each topic
+  scale_y_reordered()
+```
+
+```{r}
+# Extract gamma matrix (document-topic probabilities)
+reviews_topics <- tidy(fit, matrix = "gamma") |> 
+  left_join(reviews, by = c("document"))              # Merges topic data with original review data
+```
+
+```{r}
+# Plot average topic probabilities by review rating
+reviews_topics |>
+  group_by(topic, Rating) |>
+  summarize(avg_gamma = mean(gamma)) |>               # Computes average topic strength per rating
+  ggplot(aes(Rating, avg_gamma, fill = factor(topic))) +
+  geom_col(position = "dodge") +
+  labs(y = "Avg. Topic Probability", x = "Rating")
+```

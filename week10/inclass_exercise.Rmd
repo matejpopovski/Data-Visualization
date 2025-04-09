@@ -1,0 +1,64 @@
+## Summary of Implementation Strategy
+
+This analysis demonstrates the application of UMAP to a single-cell genomics dataset containing PBMC (Peripheral Blood Mononuclear Cells) data. The workflow includes loading and preprocessing the dataset, applying dimensionality reduction using the UMAP method from the `embed` package, and visualizing the 2D embedding. The strategy emphasizes preserving local structure in the data, which is essential for identifying potential biological subpopulations. The use of `tidymodels` helps structure the preprocessing and modeling pipeline in a reproducible manner.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# ---- Section 1: Description of the next code block ----
+---
+title: "Untitled"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(warnings = FALSE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(embed)
+
+# ---- Section 2: Description of the next code block ----
+library(tidymodels)
+th <- theme_minimal() +
+    theme(
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "#f7f7f7"),
+        panel.border = element_rect(fill = NA, color = "#0c0c0c"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.position = "bottom"
+    )
+theme_set(th)
+```
+
+# ---- Section 3: Description of the next code block ----
+
+[Single-Cell Genomics]  In this problem, we will apply UMAP to a
+[dataset](https://uwmadison.box.com/shared/static/ai539s30rjsw5ke4vxbjrxjaiihq7edk.csv)
+of Peripheral Blood Mononuclear Cells (PBMC) released by 10X Genomics. The first
+column, `cell_tag`, gives an identifier for each cell in the dataset. All other
+columns are molecules that were detected in that cell. For example, CD74 is a
+molecule often found on the surface of T-cells.
+    
+a. Define a tidymodels `recipe` that specifies that UMAP should be performed
+with the parameters `learn_rate = 0.1` and `neighbors = 5`. There is no need to
+normalize these data, as they have been normalized in advance using methods
+tailored to single-cell genomics data.
+
+
+# ---- Section 4: Description of the next code block ----
+```{r}
+pbmc <- read_csv("https://uwmadison.box.com/shared/static/ai539s30rjsw5ke4vxbjrxjaiihq7edk.csv")
+# umap_rec <-
+```
+
+b. Compute the UMAP embeddings across cells. Color points in by their value of
+the GNLY molecule.
+
