@@ -1,0 +1,292 @@
+---
+title: "Problem Set 4 Coding Solutions"
+subtitle: "STAT 436, Spring 2025"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, cache = T, fig.align = "center")
+```
+
+```{r, echo = FALSE}
+    library(tidyverse)
+    library(sf)
+    my_theme <- theme_classic() +
+      theme(
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_blank(),
+        plot.background = element_rect(fill = "transparent", colour = NA)
+      )
+    theme_set(my_theme)
+```
+
+
+# Geospatial Datasets
+
+For each of the datasets below, specify whether it is in a vector or raster data
+format. If it is in a vector data format, explain which types of geometries it
+contains (e.g., a point or linestring). Explain your reasoning.
+
+a. [NYC Building Footprints](https://uwmadison.box.com/shared/static/qfmrp9srsoq0a7oj0e7xmgu5spojr33e.geojson)
+
+Note: We have included visualizations, but these were not required for credit.
+
+Vector. Each building is a multipolygon geometry, see the `Geometry type` field.
+Each row gives the coordinates of the boundaries of the building.
+
+```{r}
+buildings <- read_sf("https://uwmadison.box.com/shared/static/qfmrp9srsoq0a7oj0e7xmgu5spojr33e.geojson")
+buildings
+```
+
+```{r}
+library(tmap)
+tm_shape(buildings) +
+    tm_polygons()
+```
+
+b. [Africa Population 2020](https://github.com/krisrs1128/stat436_s24/raw/main/data/afripop2020.tif)
+
+Raster. This is shown in the `RasterBrick` data class below. Population is given
+for each 0.1666 degrees of the longitude/latitude on the continent.
+
+```{r}
+library(raster)
+afripop <- brick("https://github.com/krisrs1128/stat436_f24/raw/refs/heads/main/data/afripop2020.tif")
+afripop
+```
+
+```{r}
+tm_shape(log(1 + afripop)) +
+    tm_raster(palette = c('#ffffd9','#edf8b1','#c7e9b4','#7fcdbb','#41b6c4','#1d91c0','#225ea8','#0c2c84'))
+```
+
+c. [Himalayan Glacial Lakes](https://raw.githubusercontent.com/krisrs1128/stat436_s23/main/data/GL_3basins_2015.topojson)
+
+Vector. Each lake is a polygon.
+
+```{r}
+read_sf("https://raw.githubusercontent.com/krisrs1128/stat436_s23/main/data/GL_3basins_2015.topojson") |>
+    mutate(GL_ID = fct_reorder(GL_ID, Area)) |>
+    slice_max(Area, n = 20) |>
+    tm_shape() +
+    tm_polygons(col = "#72B6F2") +
+    tm_facets("GL_ID", ncol = 5) +
+    tm_scale_bar()
+```
+
+d. [Wisconsin EV Charging ](https://github.com/krisrs1128/stat436_s24/raw/main/data/ev.geojson)
+
+Vector. Each station is a point geometry, and the rows give their latitude and
+longitude coordinates. Can you recognize the outlines of Wisconsin from this?
+Which regions have the most stations?.
+
+```{r}
+ev <- read_sf("https://github.com/krisrs1128/stat436_s24/raw/main/data/ev.geojson")
+ev
+```
+
+```{R}
+tm_shape(ev) +
+    tm_dots()
+```
+
+e. [Zion Elevation](https://github.com/krisrs1128/stat436_s24/raw/main/data/landsat.tif)
+
+Raster. This is because the object is class `RasterLayer`. We have elevation at
+30 meter resolution across the park.
+
+```{r}
+zion <- brick("https://github.com/krisrs1128/stat436_s24/raw/main/data/landsat.tif") |>
+    subset(4)
+zion
+```
+
+```{r}
+tm_shape(zion) +
+    tm_raster(palette = c('#fcfbfd','#efedf5','#dadaeb','#bcbddc','#9e9ac8','#807dba','#6a51a3','#4a1486'))
+```
+
+# CalFresh Comparison
+
+```{r, unemployment_read}
+library(tsibble)
+library(feasts)
+unemployment <- read_sf("https://raw.githubusercontent.com/krisrs1128/stat436_s25/refs/heads/main/data/unemployment.geojson") |>
+  mutate(date = yearmonth(date))
+focus <- c("Colusa", "Monterey", "San Francisco", "Imperial", "Los Angeles", "San Joaquin")
+head(unemployment, 3)
+```
+    
+c. Provide code to answer: For each county and year, what was the maximum unemployment rate across all months?
+
+```{r}
+unemployment |>
+  group_by(county, year) |>
+  summarise(max_unemployed = max(unemployment, na.rm = TRUE))
+```
+    
+d. Provide code to implement one of the figures above. You may assume the result from part (c) and do not need to match color or text themes.
+
+```{r unemployment_figures, echo = TRUE, fig.width = 8, fig.height = 5, out.width = "0.7\\textwidth", fig.align = "center"}
+library(scico)
+library(tmap) 
+    
+p1 <- unemployment |>
+  as_tsibble(county, date) |>
+  filter(county %in% focus) |>
+  gg_season(unemployment, linewidth = 1) +
+  guides(color = guide_legend(override.aes = list(linewidth = 2))) +
+  facet_wrap(~ reorder(county, unemployment), ncol = 2) +
+  labs(title = "Approach 1") +
+  theme(
+    title = element_text(size = 18),
+    axis.title = element_text(size = 16),
+    axis.text.y = element_text(size = 14),
+    axis.text.x = element_text(size = 10),
+    strip.text = element_text(size = 16),
+    legend.text = element_text(size = 14),
+    legend.position = "right"
+  )
+
+p2 <- ggplot(unemployment) +
+  geom_tile(
+    aes(
+      as_date(date),
+      reorder(county, unemployment, na.rm = TRUE),
+      fill = sqrt(unemployment),
+      col = sqrt(unemployment)
+    ),
+    linewidth = 1
+  ) +
+  scale_x_date(expand = c(0, 0)) +
+  scale_fill_scico(palette = "roma") +
+  scale_color_scico(palette = "roma") +
+  labs(x = "Date", y = "County", fill = "sqrt(Unemployment %)", color = "sqrt(Unemployment %)", title = "Approach 2") +
+  theme(
+    title = element_text(size = 18),
+    axis.title = element_text(size = 18),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 16),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 18)
+  )
+
+p3 <- unemployment |>
+  group_by(county, year) |>
+  summarise(max_unemployed = max(unemployment, na.rm = TRUE)) |>
+  tm_shape() +
+  tm_polygons(col = "max_unemployed", title = "Max. Unemployed") +
+  tm_facets("year", ncol = 4) +
+  tm_layout(
+    main.title = "Approach 3",
+    title.size = 14
+  )
+
+p1
+```
+    
+```{r, echo = TRUE, fig.width = 10, fig.height = 6.25, out.width = "0.7\\textwidth", fig.align = "center", dpi = 300}
+p2
+```
+    
+```{r, echo = TRUE, fig.width = 6, fig.height = 3, out.width = "0.7\\textwidth", fig.align="center"}
+p3
+```
+
+
+# HIV Network
+
+a. Provide code to generate a node-link visualization similar to that in Figure 14. Make at least one style customization that improves the visualization. Justify your choice.
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+    library(tidygraph)
+    nodes <- read_csv("https://github.com/krisrs1128/stat436_s25/raw/refs/heads/main/data/hiv_nodes.csv")
+    edges <- read_csv("https://github.com/krisrs1128/stat436_s25/raw/refs/heads/main/data/hiv_edges.csv")
+    G <- tbl_graph(nodes, edges)
+
+    library(ggraph)
+    ggraph(G) +
+      geom_edge_link(colour = "#d3d3d3", alpha = 0.9, width = 2) +
+      geom_node_text(aes(label = name)) +
+      theme_void()
+```
+    
+b. The figure below shows the node-link visualization for a simple graph. Sketch its exact adjacency
+matrix.
+
+```{r}
+tibble(
+  node = 1:5,
+  `1` = c(0, 1, 1, 0, 1),
+  `2` = c(1, 0, 0, 1, 0),
+  `3` = c(1, 0, 0, 0, 0),
+  `4` = c(0, 1, 0, 0, 0),
+  `5` = c(1, 0, 0, 0, 0)
+) %>% 
+  column_to_rownames(var = "node")
+```
+
+
+c. The figure below shows the node-link visualization for a more complex graph. How do you expect its
+corresponding adjacency matrix visualization to look? Provide a rough sketch and a one-sentence
+justification.
+
+The three cluster structure of the node-link visualization would result in an adjacency matrix with three distinct, dense blocks of 1's, with a smattering of 1's not in those blocks representing the small number of connections across clusters.
+    
+# Beijing Air Pollution
+
+This problem studies daily air pollution and weather
+patterns in Beijing from 2010 to 2014. Each row in this dataset gives
+measurements for three variables, `pollution`, `temp`, and `wndspd` over time
+for a single day, indexed by `date`. For example the `temp_13` column gives the
+temperature at 1pm. Note that both `pollution` and `wndspd` have been
+$\log\left(1 + x\right)$ transformed.
+
+    a. Cluster all the days using a hierarchical clustering. Be sure to scale
+    the columns in advance, so that no single variable has undue influence on
+    the result. Cut the tree so that we are left with 10 clusters, and provide a
+    ribbon plot to visualize several quantiles associated with each cluster's
+    typical pollution, temperature, and windspeed trajectories. visualization to
+    understand the centroids of each cluster. Briefly interpret the main
+    patterns you observe.
+    
+```{r}
+pollution <- read_csv("https://raw.githubusercontent.com/krisrs1128/stat436_s25/refs/heads/main/data/pollution_wide.csv")
+
+fit <- pollution %>%
+  select(-date) %>%
+  scale() %>%
+  dist() %>%
+  hclust()
+```
+ 
+```{r}
+ribbon_data <- pollution %>%
+  mutate(cluster = cutree(fit, k = 10)) %>%
+  pivot_longer(contains("_")) %>%
+  separate(name, c("variable", "hour"), convert = TRUE) %>%
+  group_by(cluster, variable, hour) %>%
+  summarise(
+    q1 = quantile(value, 0.25),
+    median = median(value),
+    q3 = quantile(value, 0.75)
+  )
+
+cluster_order <- ribbon_data %>%
+  filter(variable == "pollution") %>%
+  group_by(cluster) %>%
+  summarise(m = mean(median)) %>%
+  arrange(-m) %>%
+  pull(cluster)
+
+ribbon_data <- ribbon_data %>%
+  mutate(cluster = factor(cluster, levels = cluster_order))
+
+ggplot(ribbon_data) +
+  geom_ribbon(aes(hour, ymin = q1, ymax = q3)) +
+  geom_line(aes(hour, median)) +
+  facet_grid(variable ~ cluster, scale = "free_y")
+```
