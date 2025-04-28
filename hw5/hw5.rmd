@@ -121,6 +121,3 @@ ggbiplot(pca_full, groups = as.factor(clusters), ellipse = TRUE, circle = TRUE) 
 
 
 
-
-
-
