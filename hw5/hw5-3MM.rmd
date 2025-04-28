@@ -1,0 +1,410 @@
+---
+title: "hw5"
+author: "Matej Popovski"
+date: "`r Sys.Date()`"
+output: html_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(janitor)
+library(recipes)
+library(ggrepel)
+library(patchwork)
+```
+
+## Data Loading and Cleaning
+
+```{r load-data}
+# Load and clean the dataset
+air_quality <- read_csv("Air_Quality.csv") %>%
+  clean_names() %>%
+  filter(!is.na(data_value))
+air_quality
+# Focus on key variables
+cleaned_data <- air_quality %>%
+  select(geo_place_name, name, data_value) %>%
+  pivot_wider(names_from = name, values_from = data_value, values_fn = mean) %>%
+  drop_na()
+cleaned_data
+# Save neighborhood labels for plotting
+location_labels <- cleaned_data$geo_place_name
+location_labels
+
+# Numeric data for PCA
+numeric_data <- cleaned_data %>%
+  select(-geo_place_name)
+numeric_data
+```
+
+## PCA Preprocessing
+
+```{r pca-prep}
+rec <- recipe(~ ., data = numeric_data) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_pca(all_numeric_predictors(), num_comp = 2)
+pca_data <- prep(rec) %>% bake(new_data = NULL)
+pca_df <- bind_cols(pca_data, geo_place_name = location_labels)
+pca_df
+```
+
+## PCA Visualization 1: Neighborhoods by Air Quality
+
+```{r pca-plot}
+ggplot(pca_df, aes(x = PC1, y = PC2, label = geo_place_name)) +
+  geom_point(color = "steelblue", alpha = 0.7) +
+  geom_text_repel(size = 2.5) +
+  labs(
+    title = "PCA of NYC Neighborhoods Based on Air Quality",
+    subtitle = "Pollution profiles reduced via PCA",
+    x = "Principal Component 1",
+    y = "Principal Component 2"
+  ) +
+  theme_minimal()
+```
+=====
+copilot MM
+
+```{r}
+# Standardize the data
+scaled_data <- scale(numeric_data)
+#scaled_data
+```
+
+
+
+
+
+```{r}
+
+
+# Perform PCA
+pca_full <- prcomp(numeric_data, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see the explained variance
+summary(pca_full)
+
+# Extract PCA loadings
+loadings <- pca_full$rotation
+print("PCA Loadings:")
+print(loadings)
+#install.packages("ggbiplot")
+library(ggbiplot)
+ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
+
+# Visualize the PCA
+biplot(pca_full, scale = 0.9)
+
+```
+
+popravka so iminja
+
+```{r}
+# Perform PCA
+pca_full <- prcomp(numeric_data, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see the explained variance
+summary(pca_full)
+
+# Extract PCA loadings
+loadings <- pca_full$rotation
+print("PCA Loadings:")
+print(loadings)
+#install.packages("ggbiplot")
+library(ggbiplot)
+ggbiplot(pca_full, labels = pca_df$geo_place_name, ellipse = TRUE, circle = TRUE)
+#ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
+
+```
+=== ===
+improve plot I
+
+```{r}
+library(ggbiplot)
+
+# Enhanced ggbiplot with better visibility
+ggbiplot(pca_full, 
+         labels = pca_df$geo_place_name,  # Add region names
+         ellipse = TRUE, 
+         circle = TRUE, 
+         varname.size = 2,  # Increase arrow label font size
+         varname.adjust = 1.5,  # Adjust arrow label positions slightly
+         var.scale = 1) +  # Scale down arrow length
+  theme_minimal() +  # Cleaner background for better readability
+  theme(text = element_text(size = 10),  # Increase text size for labels
+        legend.position = "right")  # Move legend for better alignment
+```
+====
+ 
+
+
+improve plot II
+
+```{r}
+# Assign cluster numbers (based on k-means or another clustering method)
+clusters <- kmeans(pca_full$x[, 1:2], centers = 3)$cluster
+ggbiplot(pca_full, groups = as.factor(clusters), ellipse = TRUE, circle = TRUE) +
+  scale_color_manual(values = c("red", "blue", "green"))  # Customize cluster colors
+```
+===
+
+reduce # variables
+
+```{r}
+# Identify the most influential variables
+important_variables <- rownames(loadings)[apply(abs(loadings[, 1:2]), 1, max) > 0.5]  # Threshold of 0.5
+
+# Filter PCA loadings for selected variables
+ggbiplot(pca_full, labels = pca_df$geo_place_name, ellipse = TRUE, circle = TRUE, 
+         varname.limit = length(important_variables))
+```
+
+====
+
+K-means
+
+```{r}
+# Perform K-Means Clustering
+set.seed(123)
+clusters <- kmeans(pca_full$x[, 1:2], centers = 3)  # Use PC1 and PC2, 3 clusters
+
+# Add cluster labels to the PCA data
+scores <- data.frame(PC1 = pca_full$x[, 1], PC2 = pca_full$x[, 2], Cluster = as.factor(clusters$cluster))
+
+# Visualize Clusters
+library(ggplot2)
+ggplot(scores, aes(x = PC1, y = PC2, color = Cluster)) +
+  geom_point(size = 3) +
+  labs(title = "Clusters in PC1-PC2 Space", x = "Principal Component 1", y = "Principal Component 2") +
+  theme_minimal()
+```
+=== ===
+```{r}
+# Create a data frame for PCA scores
+scores <- data.frame(PC1 = pca_full$x[, 1], 
+                     PC2 = pca_full$x[, 2], 
+                     Region = pca_df$geo_place_name)  # Add regional names
+
+# Plot the PCA scatterplot with regional names
+library(ggplot2)
+ggplot(scores, aes(x = PC1, y = PC2, label = Region)) +
+  geom_point(color = 'blue', size = 3) +  # Points for regions
+  geom_text(aes(label = Region), hjust = 1.1, vjust = -0.5, size = 3, color = "darkred") +  # Regional names
+  labs(title = "PCA Scatterplot with Regional Names", 
+       x = "Principal Component 1 (PC1)", 
+       y = "Principal Component 2 (PC2)") +
+  theme_minimal()
+```
+==
+```{r}
+# Perform K-Means Clustering
+set.seed(123)  # Ensures reproducibility
+clusters <- kmeans(pca_full$x[, 1:2], centers = 3)  # Use PC1 and PC2, with 3 clusters
+
+# Create a data frame for PCA scores, clusters, and regional names
+scores <- data.frame(PC1 = pca_full$x[, 1], 
+                     PC2 = pca_full$x[, 2], 
+                     Region = pca_df$geo_place_name,  # Regional names
+                     Cluster = as.factor(clusters$cluster))  # Cluster labels
+
+# Plot the PCA scatterplot with regional names and color by clusters
+library(ggplot2)
+ggplot(scores, aes(x = PC1, y = PC2, label = Region, color = Cluster)) +
+  geom_point(size = 3) +  # Points for regions, colored by cluster
+  geom_text(aes(label = Region), hjust = 1.1, vjust = -0.5, size = 3, color = "black") +  # Regional names
+  labs(title = "PCA Scatterplot with Clusters and Regional Names", 
+       x = "Principal Component 1 (PC1)", 
+       y = "Principal Component 2 (PC2)", 
+       color = "Cluster") +  # Cluster legend
+  theme_minimal()
+```
+podobruvanje vo vidlivost
+===
+```{r}
+# Perform K-Means Clustering
+set.seed(123)  # Ensures reproducibility
+clusters <- kmeans(pca_full$x[, 1:2], centers = 3)  # Use PC1 and PC2, with 3 clusters
+
+# Create a data frame for PCA scores, clusters, and regional names
+scores <- data.frame(PC1 = pca_full$x[, 1], 
+                     PC2 = pca_full$x[, 2], 
+                     Region = pca_df$geo_place_name,  # Regional names
+                     Cluster = as.factor(clusters$cluster))  # Cluster labels
+
+# Plot the PCA scatterplot with regional names and color by clusters
+# Refined Plot for Better Label and Point Visibility
+library(ggplot2)
+library(ggrepel)  # For better label positioning
+
+ggplot(scores, aes(x = PC1, y = PC2, color = Cluster)) +
+  geom_point(size = 4, alpha = 0.8) +  # Larger points with some transparency
+  geom_text_repel(aes(label = Region), 
+                  size = 3.5,   # Adjust text size for readability
+                  max.overlaps = 10,  # Limit overlaps with smart label positioning
+                  box.padding = 0.3,  # Add space around labels
+                  point.padding = 0.5,  # Add padding between points and labels
+                  segment.color = "grey50",  # Add connecting lines
+                  segment.size = 0.3) +  # Make lines thin and subtle
+  labs(title = "PCA Scatterplot with Clusters and Regional Names", 
+       x = "Principal Component 1 (PC1)", 
+       y = "Principal Component 2 (PC2)", 
+       color = "Cluster") +
+  theme_minimal() +
+  theme(legend.position = "right",  # Keep legend on the side
+        plot.title = element_text(size = 14, face = "bold"),  # Improve title styling
+        axis.title = element_text(size = 12))  # Improve axis label styling
+
+```
+
+
+
+
+===
+
+Code Explanation
+K-Means Clustering:
+- Clusters regions based on their PC1 and PC2 scores.
+- centers = 3: Creates 3 clusters (adjust this number based on your dataset).
+
+Color Coding:
+- The Cluster variable assigns distinct colors to each cluster, making it easy to visually group regions.
+
+Text Labels:
+- geom_text() displays the regional names next to their corresponding points.
+- Use hjust and vjust to position the labels appropriately, avoiding overlap.
+
+Cluster Legend:
+- The color = Cluster mapping automatically creates a legend showing cluster colors.
+
+
+Expected Outcome
+- Clusters:
+- Regions will be color-coded by cluster, highlighting groups with similar PCA profiles.
+- For example, Port Richmond and Rockaway might fall within the same cluster.
+
+Regional Names:
+- Names will be displayed alongside points for easy identification.
+
+Enhanced Visualization:
+- The plot will clearly show clusters and regional names, improving interpretability.
+
+
+
+
+
+
+=== ===
+
+```{r}
+
+ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
+```
+```{r}
+scores <- as.data.frame(pca_full$x)
+scores$Neighborhood <- rownames(pca_full) # Add neighborhood names (optional)
+scores
+```
+
+
+==== 
+interaktiven plot
+
+```{r}
+# Load required libraries
+#install.packages("plotly")
+library(plotly)
+library(ggplot2)
+
+
+# Create a data frame for PCA scores (coordinates of neighborhoods)
+scores <- as.data.frame(pca_full$x)
+#scores$Neighborhood <- rownames(numeric_data) # Add neighborhood names (optional)
+scores$Neighborhood <- cleaned_data$geo_place_name
+# Create a data frame for loadings (variables contributing to PCA)
+loadings <- as.data.frame(pca_full$rotation)
+loadings$Variable <- rownames(loadings) # Add variable names
+
+# Plot PCA scores (points) and loadings (arrows) interactively using plotly
+p <- ggplot(scores, aes(x = PC1, y = PC2)) +
+  geom_point(aes(text = paste("Neighborhood:",rownames(numeric_data) )), color = 'blue', size = 3) +
+  geom_segment(data = loadings, aes(x = 0, y = 0, xend = PC1*10, yend = PC2*10), 
+               arrow = arrow(length = unit(0.2, "cm")), color = 'red') +
+  geom_text(data = loadings, aes(x = PC1*10, y = PC2*10, label = Variable), 
+            hjust = 0.5, vjust = 0.5, color = 'darkred') +
+  labs(title = "Interactive PCA Biplot",
+       x = "Principal Component 1 (PC1)",
+       y = "Principal Component 2 (PC2)") +
+  theme_minimal()
+
+# Convert ggplot to an interactive plotly object
+interactive_plot <- ggplotly(p, tooltip = "text")
+
+# Display the interactive plot
+interactive_plot
+```
+=== ===
+
+```{r}
+# Updated ggplot with proper text mapping
+p <- ggplot(scores, aes(x = PC1, y = PC2)) +
+  geom_point(aes(text = Neighborhood), color = 'blue', size = 3) +  # Explicitly map text aesthetic
+  geom_segment(data = loadings, aes(x = 0, y = 0, xend = PC1*10, yend = PC2*10), 
+               arrow = arrow(length = unit(0.2, "cm")), color = 'red') +
+  geom_text(data = loadings, aes(x = PC1*10, y = PC2*10, label = Variable), 
+            hjust = 0.5, vjust = 0.5, color = 'darkred') +
+  labs(title = "Interactive PCA Biplot",
+       x = "Principal Component 1 (PC1)",
+       y = "Principal Component 2 (PC2)") +
+  theme_minimal()
+
+# Convert ggplot to interactive plotly plot
+interactive_plot <- ggplotly(p, tooltip = "text")  # Ensure tooltip uses the mapped `text` aesthetic
+
+# Display the interactive plot
+interactive_plot
+```
+
+
+
+==== ====
+
+## Scree Plot: Variance Explained
+
+### Initial Version
+
+```{r scree-plot}
+# Basic scree plot from PCA object
+pca_full <- prcomp(numeric_data, scale. = TRUE)
+pca_full
+
+data.frame(PC = paste0("PC", 1:length(pca_full$sdev)),
+           Variance = (pca_full$sdev^2) / sum(pca_full$sdev^2)) %>%
+  ggplot(aes(x = PC, y = Variance)) +
+  geom_col(fill = "darkgreen") +
+  labs(title = "Scree Plot of Principal Components",
+       x = "Principal Component", y = "Proportion of Variance Explained") +
+  theme_minimal()
+```
+
+
+### Improved Version with Ordered PCs and Elbow Line
+
+```{r scree-plot-improved}
+# Scree plot with reordered PCs and horizontal elbow threshold
+scree_df <- data.frame(
+  PC = factor(paste0("PC", 1:length(pca_full$sdev)), levels = paste0("PC", 1:length(pca_full$sdev))),
+  Variance = (pca_full$sdev^2) / sum(pca_full$sdev^2)
+)
+
+scree_df %>%
+  ggplot(aes(x = PC, y = Variance)) +
+  geom_col(fill = "forestgreen") +
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "red") +
+  labs(
+    title = "Improved Scree Plot with Elbow Threshold",
+    x = "Principal Component",
+    y = "Proportion of Variance Explained"
+  ) +
+  theme_minimal()
+```

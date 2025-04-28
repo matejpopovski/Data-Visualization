@@ -71,8 +71,6 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = geo_place_name)) +
 
 ## Scree Plot: Variance Explained
 
-### Initial Version
-
 ```{r scree-plot}
 pca_df <- data.frame(
   PC = factor(paste0("PC", 1:length(pca_full$sdev)), levels = paste0("PC", 1:length(pca_full$sdev))),
@@ -87,6 +85,8 @@ ggplot(pca_df, aes(x = PC, y = Variance)) +
 
 ```
 
+## PCA Biplot: Sample Distribution
+### Principal Components 1 and 2 with Circle and Ellipse
 
 
 ```{r}
@@ -105,8 +105,14 @@ ggbiplot(pca_full,
 
 ```
 
-```{r}
+## PCA Biplot: Clustered Neighborhoods
+### K-means Clustering on Principal Components 1 and 2
 
+```{r}
+# Assign cluster numbers (based on k-means or another clustering method)
+clusters <- kmeans(pca_full$x[, 1:2], centers = 3)$cluster
+ggbiplot(pca_full, groups = as.factor(clusters), ellipse = TRUE, circle = TRUE) +
+  scale_color_manual(values = c("red", "blue", "green"))  # Customize cluster colors
 
 ```
 
