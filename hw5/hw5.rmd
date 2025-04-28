@@ -79,3 +79,16 @@ ggplot(pca_df, aes(x = PC, y = Variance)) +
   theme_minimal()
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
