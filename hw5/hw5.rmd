@@ -67,35 +67,15 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = geo_place_name)) +
 ### Initial Version
 
 ```{r scree-plot}
-# Basic scree plot from PCA object
-pca_full <- prcomp(numeric_data, scale. = TRUE)
-
-data.frame(PC = paste0("PC", 1:length(pca_full$sdev)),
-           Variance = (pca_full$sdev^2) / sum(pca_full$sdev^2)) %>%
-  ggplot(aes(x = PC, y = Variance)) +
-  geom_col(fill = "darkgreen") +
-  labs(title = "Scree Plot of Principal Components",
-       x = "Principal Component", y = "Proportion of Variance Explained") +
-  theme_minimal()
-```
-
-### Improved Version with Ordered PCs and Elbow Line
-
-```{r scree-plot-improved}
-# Scree plot with reordered PCs and horizontal elbow threshold
-scree_df <- data.frame(
+pca_df <- data.frame(
   PC = factor(paste0("PC", 1:length(pca_full$sdev)), levels = paste0("PC", 1:length(pca_full$sdev))),
   Variance = (pca_full$sdev^2) / sum(pca_full$sdev^2)
 )
 
-scree_df %>%
-  ggplot(aes(x = PC, y = Variance)) +
-  geom_col(fill = "forestgreen") +
-  geom_hline(yintercept = 0.1, linetype = "dashed", color = "red") +
-  labs(
-    title = "Improved Scree Plot with Elbow Threshold",
-    x = "Principal Component",
-    y = "Proportion of Variance Explained"
-  ) +
+ggplot(pca_df, aes(x = PC, y = Variance)) +
+  geom_col(fill = "darkgreen") +
+  labs(title = "Scree Plot of Principal Components",
+       x = "Principal Component", y = "Proportion of Variance Explained") +
   theme_minimal()
+
 ```

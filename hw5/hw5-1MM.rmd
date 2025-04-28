@@ -83,12 +83,12 @@ scaled_data
 pca_full <- prcomp(numeric_data, center = TRUE, scale. = TRUE)
 
 # Summary of PCA to see the explained variance
-summary(pca_full)
+#summary(pca_full)
 
 # Extract PCA loadings
 loadings <- pca_full$rotation
 print("PCA Loadings:")
-print(loadings)
+#print(loadings)
 #install.packages("ggbiplot")
 library(ggbiplot)
 ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
