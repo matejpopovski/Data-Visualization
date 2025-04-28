@@ -82,6 +82,9 @@ ggplot(pca_df, aes(x = PC, y = Variance)) +
 
 
 
+```{r}
+ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
+```
 
 
 
