@@ -34,6 +34,13 @@ location_labels <- cleaned_data$geo_place_name
 # Numeric data for PCA
 numeric_data <- cleaned_data %>%
   select(-geo_place_name)
+
+# Save neighborhood labels
+location_labels <- cleaned_data$geo_place_name
+
+# PCA Calculation (add this chunk right here!)
+pca_full <- prcomp(numeric_data, scale. = TRUE)
+
 ```
 
 ## PCA Preprocessing
@@ -83,7 +90,19 @@ ggplot(pca_df, aes(x = PC, y = Variance)) +
 
 
 ```{r}
-ggbiplot(pca_full, labels = rownames(numeric_data), ellipse = TRUE, circle = TRUE)
+# Recalculate PCA directly from numeric_data
+pca_full <- prcomp(numeric_data, scale. = TRUE)
+
+# Create a biplot using location labels
+library(ggbiplot)
+
+ggbiplot(pca_full,
+         labels = location_labels,   # Use saved neighborhood names
+         ellipse = TRUE,
+         circle = TRUE) +
+  labs(title = "Biplot of NYC Neighborhoods Based on Air Quality",
+       subtitle = "PCA visualization with ellipses and circle")
+
 ```
 
 
