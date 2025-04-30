@@ -38,7 +38,7 @@ numeric_data <- cleaned_data %>%
 # Save neighborhood labels
 location_labels <- cleaned_data$geo_place_name
 
-# PCA Calculation (add this chunk right here!)
+# PCA Calculation
 pca_full <- prcomp(numeric_data, scale. = TRUE)
 
 ```
@@ -68,6 +68,42 @@ ggplot(pca_df, aes(x = PC1, y = PC2, label = geo_place_name)) +
   ) +
   theme_minimal()
 ```
+
+## PCA Visualization 2: Absolute Loadings for PC1 and PC2
+
+```{r}
+library(tidytext)
+
+# Extract loadings
+components <- as.data.frame(pca_full$rotation) %>%
+  rownames_to_column(var = "terms") %>%
+  pivot_longer(
+    cols = starts_with("PC"),
+    names_to = "component",
+    values_to = "value"
+  )
+
+# Keep only PC1 and PC2, reorder by absolute value
+components_filtered <- components %>%
+  filter(component %in% c("PC1", "PC2")) %>%
+  mutate(terms = reorder_within(terms, abs(value), component))  # reorder by abs(value)
+
+# Plot
+ggplot(components_filtered, aes(x = value, y = terms)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ component, scales = "free_y", ncol = 2) +
+  scale_y_reordered() +
+  labs(
+    title = "Top Contributing Pollutants by Absolute Loadings (PC1 and PC2)",
+    x = "Loading Value",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(axis.text = element_text(size = 7))
+
+```
+
+
 
 ## Scree Plot: Variance Explained
 
@@ -115,6 +151,7 @@ ggbiplot(pca_full, groups = as.factor(clusters), ellipse = TRUE, circle = TRUE) 
   scale_color_manual(values = c("red", "blue", "green"))  # Customize cluster colors
 
 ```
+
 
 
 
