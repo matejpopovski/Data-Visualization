@@ -32,7 +32,7 @@ animated_plot1 <- p1 +
 
 # Save first animation
 anim1 <- animate(animated_plot1, width = 800, height = 600, duration = 12, renderer = gifski_renderer())
-anim_save("reveal.gif", anim1)
+anim1
 
 # --- Part 2: Evolving Regression Animation ---
 ice_data <- ice_data %>% arrange(year_start)
@@ -66,13 +66,6 @@ p2 <- ggplot() +
   transition_states(frame_year, transition_length = 1, state_length = 1, wrap = FALSE)
 
 anim2 <- animate(p2, width = 800, height = 600, duration = 15, renderer = gifski_renderer())
-anim_save("regression.gif", anim2)
+anim2
 
-# --- Combine the Two Animations ---
-gif1 <- image_read("reveal.gif")
-gif2 <- image_read("regression.gif")
-combined <- image_append(c(gif1, gif2), stack = FALSE)  # optional side-by-side
-final_gif <- c(gif1, gif2)  # sequential animation
 
-# Save the final combined animation
-image_write_gif(final_gif, "combined_lake_mendota.gif", delay = 1/10)
