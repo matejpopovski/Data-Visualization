@@ -34,3 +34,4 @@ animated_plot <- p +
 anim <- animate(animated_plot, width = 800, height = 600, duration = 12, renderer = gifski_renderer())
 anim
 
+
