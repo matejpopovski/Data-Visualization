@@ -11,3 +11,36 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
+```{r}
+library(tidyverse)
+library(gganimate)
+library(broom)
+library(magick)
+
+# --- Part 1: Basic Reveal Animation ---
+ice_data <- read_csv("lake_mendota_ice.csv") %>%
+  rename(
+    year_range = Category,
+    annual_days = `Annual number of days`,
+    avg_5yr = `Five-year running average`
+  ) %>%
+  mutate(
+    year_start = as.numeric(str_sub(year_range, 1, 4))
+  ) %>%
+  drop_na(annual_days)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
