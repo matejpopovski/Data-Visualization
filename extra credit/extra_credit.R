@@ -35,3 +35,4 @@ anim <- animate(animated_plot, width = 800, height = 600, duration = 12, rendere
 anim
 
 
+
