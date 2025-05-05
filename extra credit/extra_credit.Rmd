@@ -30,8 +30,37 @@ ice_data <- read_csv("lake_mendota_ice.csv") %>%
   drop_na(annual_days)
 ```
 
+```{r}
+# Static reveal plot
+p1 <- ggplot(ice_data, aes(x = year_start, y = annual_days)) +
+  geom_line(color = "blue", linewidth = 0.8) +
+  geom_point(color = "red", size = 2) +
+  labs(
+    title = 'Lake Mendota Ice Cover: {frame_along}',
+    x = 'Winter Starting Year',
+    y = 'Annual Ice Cover Duration (days)',
+    caption = 'Data: Wisconsin State Climatology Office'
+  ) +
+  theme_minimal()
+```
 
+```{r}
+animated_plot1 <- p1 +
+  transition_reveal(along = year_start)
 
+# Save first animation
+anim1 <- animate(animated_plot1, width = 800, height = 600, duration = 12, renderer = gifski_renderer())
+anim_save("reveal.gif", anim1)
+```
+
+```{r}
+animated_plot1 <- p1 +
+  transition_reveal(along = year_start)
+
+# Save first animation
+anim1 <- animate(animated_plot1, width = 800, height = 600, duration = 12, renderer = gifski_renderer())
+anim_save("reveal.gif", anim1)
+```
 
 
 
