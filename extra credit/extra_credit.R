@@ -13,10 +13,11 @@ ice_data <- read_csv("lake_mendota_ice.csv") %>%
   ) %>%
   drop_na(annual_days)
 
-# Static plot
+
+
 p <- ggplot(ice_data, aes(x = year_start, y = annual_days)) +
   geom_line(color = "blue", linewidth = 0.6) +
-  geom_point(color = "red", size = 1.5) +
+  geom_point(color = "red", size = 2) +
   labs(
     title = 'Lake Mendota Ice Cover: {frame_time}',
     x = 'Winter Starting Year',
@@ -27,12 +28,9 @@ p <- ggplot(ice_data, aes(x = year_start, y = annual_days)) +
 
 animated_plot <- p +
   transition_time(year_start) +
-  shadow_mark(past = TRUE, future = FALSE) +  # Leaves a trail of previous years
+  shadow_mark(past = TRUE, future = FALSE, alpha = 0.5) +  # Keeps past line and points
   ease_aes('linear')
 
-
+# Render and view
 anim <- animate(animated_plot, width = 800, height = 600, duration = 12, renderer = gifski_renderer())
 anim
-
-
-
